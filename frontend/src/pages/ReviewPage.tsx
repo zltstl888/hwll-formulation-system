@@ -51,7 +51,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
   };
 
   return (
-    <div className="grid-bg min-h-screen relative px-4 sm:px-6 py-8 sm:py-10 overflow-x-hidden">
+    <div className="grid-bg min-h-screen relative px-5 sm:px-10 py-8 sm:py-10 overflow-x-hidden">
       {/* Ambient */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[250px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse, rgba(123,47,247,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
@@ -126,7 +126,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <div className="relative bracket rounded-2xl p-5 sm:p-8 h-full"
+            <div className="relative bracket rounded-2xl p-6 sm:p-8 h-full"
               style={{
                 background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
                 border: '1px solid rgba(0,229,255,0.12)',
@@ -145,7 +145,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                 </div>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {[
                   { key: 'name',       label: '姓  名',  placeholder: '患者姓名', type: 'text'   },
                   { key: 'age',        label: '年  龄',  placeholder: '岁',       type: 'number' },
@@ -217,7 +217,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <div className="relative bracket rounded-2xl p-5 sm:p-8"
+            <div className="relative bracket rounded-2xl p-6 sm:p-8"
               style={{
                 background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
                 border: '1px solid rgba(0,229,255,0.12)',
@@ -235,7 +235,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                 </div>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {KEY_FIELDS.map((field, idx) => {
                   const val = values[field.key];
                   const num = typeof val === 'number' ? val : parseFloat(String(val));

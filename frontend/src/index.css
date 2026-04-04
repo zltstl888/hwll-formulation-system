@@ -145,6 +145,9 @@ body {
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
+/* ── Prevent iOS font-size zoom on input focus ── */
+input, textarea, select { font-size: max(16px, 1em); }
+
 /* ── Font helpers ── */
 .font-title { font-family: var(--font-title); }
 .font-data  { font-family: var(--font-data); }

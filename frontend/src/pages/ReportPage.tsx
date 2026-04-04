@@ -32,7 +32,7 @@ export default function ReportPage({ result, onRestart }: Props) {
   const condProducts = formulation.products.filter(p => p.category === 'conditional');
 
   return (
-    <div className="grid-bg min-h-screen relative px-4 sm:px-6 py-8 sm:py-10 overflow-x-hidden">
+    <div className="grid-bg min-h-screen relative px-5 sm:px-10 py-8 sm:py-10 overflow-x-hidden">
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] pointer-events-none"
         style={{ background: `radial-gradient(ellipse, rgba(0,229,255,0.05) 0%, transparent 70%)`, filter: 'blur(50px)' }} />
@@ -99,7 +99,7 @@ export default function ReportPage({ result, onRestart }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-5 pt-10 sm:p-10 sm:pt-14">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-10 sm:p-10 sm:pt-14">
             {/* Gauge */}
             <div className="flex-shrink-0">
               <RiskGauge
