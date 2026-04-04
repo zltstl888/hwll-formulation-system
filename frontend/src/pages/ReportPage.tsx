@@ -166,13 +166,22 @@ export default function ReportPage({ result, onRestart }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
+          {/* Section label */}
+          <div className="flex items-center gap-3 mb-4 no-print">
+            <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.18))' }} />
+            <span className="font-title text-xs tracking-[0.22em]" style={{ color: 'var(--text-dim)' }}>
+              干预方案详情
+            </span>
+            <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, transparent, rgba(0,229,255,0.18))' }} />
+          </div>
+
           <div className="flex gap-1 mb-6 p-1.5 rounded-2xl no-print overflow-x-auto"
             style={{ background: 'rgba(6,13,26,0.9)', border: '1px solid rgba(0,229,255,0.08)', WebkitOverflowScrolling: 'touch' }}>
             {TABS.map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className="flex-none sm:flex-1 py-3 px-3 sm:px-1 rounded-xl font-title text-xs font-semibold tracking-wider transition-all duration-300 whitespace-nowrap"
+                className="flex-none sm:flex-1 py-3 px-4 sm:px-2 rounded-xl font-title text-sm font-semibold tracking-wider transition-all duration-300 whitespace-nowrap"
                 style={{
                   background: activeTab === tab
                     ? 'linear-gradient(135deg, rgba(0,229,255,0.14), rgba(123,47,247,0.16))'
@@ -181,6 +190,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                   color: activeTab === tab ? '#00E5FF' : 'var(--text-dim)',
                   boxShadow: activeTab === tab ? '0 0 20px rgba(0,229,255,0.12)' : 'none',
                   letterSpacing: '0.12em',
+                  borderBottom: activeTab === tab ? '2px solid rgba(0,229,255,0.6)' : '2px solid transparent',
                 }}
               >
                 {tab}
@@ -355,7 +365,7 @@ function ProductCard({ product, palette, expanded, onToggle }: { product: any; p
     <motion.div
       layout
       onClick={onToggle}
-      className="relative bracket rounded-2xl p-6 cursor-pointer transition-all duration-300 overflow-hidden"
+      className="relative bracket rounded-2xl p-5 sm:p-6 cursor-pointer transition-all duration-300"
       style={{
         background: `linear-gradient(135deg, ${palette.bg}, rgba(9,18,32,0.9))`,
         border: `1px solid ${palette.border}`,
@@ -363,24 +373,22 @@ function ProductCard({ product, palette, expanded, onToggle }: { product: any; p
       }}
       whileHover={{ scale: 1.015, boxShadow: `0 0 25px ${palette.glow}` }}
     >
-      {/* Category badge */}
-      <div className="absolute top-4 right-4">
+      {/* Header: name + badge on same row */}
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <h3 className="font-body text-base font-bold tracking-wide leading-tight" style={{ color: 'var(--text-hi)' }}>
+          {product.product_name}
+        </h3>
         {product.category === 'core'
-          ? <span className="font-data text-xs tracking-wider px-2 py-1 rounded-md"
+          ? <span className="flex-shrink-0 font-data text-xs tracking-wider px-2 py-1 rounded-md"
               style={{ background: `${palette.color}18`, color: palette.color, border: `1px solid ${palette.color}30` }}>CORE</span>
-          : <span className="font-data text-xs tracking-wider px-2 py-1 rounded-md"
+          : <span className="flex-shrink-0 font-data text-xs tracking-wider px-2 py-1 rounded-md"
               style={{ background: 'rgba(255,184,0,0.12)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.3)' }}>COND</span>
         }
       </div>
 
-      {/* Product name */}
-      <h3 className="font-title text-sm font-bold mb-1 pr-16 tracking-wide leading-tight" style={{ color: 'var(--text-hi)' }}>
-        {product.product_name}
-      </h3>
-
-      {/* Dose — the hero number */}
-      <div className="my-5">
-        <p className="font-data text-3xl font-bold leading-none mb-1"
+      {/* Dose */}
+      <div className="mb-4">
+        <p className="font-data text-xl sm:text-2xl font-bold leading-none mb-1"
           style={{ color: palette.color, textShadow: `0 0 20px ${palette.glow}`, letterSpacing: '0.04em' }}>
           {product.dose_per_serving}
         </p>

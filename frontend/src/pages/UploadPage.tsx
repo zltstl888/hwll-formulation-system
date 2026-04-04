@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parsePdf } from '../api/formulation';
@@ -11,9 +11,66 @@ interface Props {
 const STEPS = ['上传报告', '确认数值', '生成配方'];
 const LOGO_SRC = `${import.meta.env.BASE_URL}hwll-logo.png`;
 
+const PARSE_STAGES = [
+  { pct: 15,  text: '正在读取 PDF 文档...' },
+  { pct: 35,  text: '识别脂肪酸指标...' },
+  { pct: 60,  text: '解析检测数值与状态...' },
+  { pct: 85,  text: '核对参考区间...' },
+  { pct: 100, text: '准备分析报告...' },
+];
+const STAGE_TIMES = [800, 2000, 3500, 4800, 5500]; // ms thresholds
+const MIN_PARSE_MS = 5500;
+
+function useParseProgress(isParsing: boolean) {
+  const [progress, setProgress] = useState(0);
+  const [stageText, setStageText] = useState('');
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isParsing) { setProgress(0); setStageText(''); return; }
+
+    const start = performance.now();
+    setStageText(PARSE_STAGES[0].text);
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      let idx = 0;
+      for (let i = 0; i < STAGE_TIMES.length; i++) {
+        if (elapsed < STAGE_TIMES[i]) { idx = i; break; }
+        idx = i;
+      }
+
+      const stage = PARSE_STAGES[idx];
+      const prevTime = idx > 0 ? STAGE_TIMES[idx - 1] : 0;
+      const prevPct = idx > 0 ? PARSE_STAGES[idx - 1].pct : 0;
+      const segDuration = STAGE_TIMES[idx] - prevTime;
+      const segElapsed = Math.min(elapsed - prevTime, segDuration);
+      const segProgress = segElapsed / segDuration;
+      const eased = 1 - Math.pow(1 - segProgress, 2);
+      const pct = prevPct + (stage.pct - prevPct) * eased;
+
+      setProgress(Math.min(pct, 100));
+      setStageText(stage.text);
+
+      if (elapsed < MIN_PARSE_MS) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        setProgress(100);
+        setStageText(PARSE_STAGES[PARSE_STAGES.length - 1].text);
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [isParsing]);
+
+  return { progress, stageText };
+}
+
 export default function UploadPage({ onParsed }: Props) {
   const [status, setStatus] = useState<'idle' | 'parsing' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const { progress, stageText } = useParseProgress(status === 'parsing');
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -21,7 +78,12 @@ export default function UploadPage({ onParsed }: Props) {
     setStatus('parsing');
     setErrorMsg('');
     try {
-      const data = await parsePdf(file);
+      const [data] = await Promise.all([
+        parsePdf(file),
+        new Promise(r => setTimeout(r, MIN_PARSE_MS)),
+      ]);
+      // Brief pause at 100% for satisfaction
+      await new Promise(r => setTimeout(r, 300));
       onParsed(data, file);
     } catch (e: any) {
       setStatus('error');
@@ -47,7 +109,7 @@ export default function UploadPage({ onParsed }: Props) {
       <div className="absolute bottom-0 right-0 pointer-events-none"
         style={{ width: 400, height: 400, background: 'radial-gradient(ellipse, rgba(123,47,247,0.06) 0%, transparent 70%)', filter: 'blur(56px)' }} />
 
-      {/* ─── Main Column — max-w-lg keeps everything tight ─── */}
+      {/* ─── Main Column ─── */}
       <div className="relative z-10 flex flex-col items-center" style={{ width: '100%', maxWidth: 520 }}>
 
         {/* ── Logo + Title block ── */}
@@ -61,10 +123,8 @@ export default function UploadPage({ onParsed }: Props) {
           {/* Logo mark */}
           <div className="flex items-center justify-center" style={{ marginBottom: 18 }}>
             <div className="relative">
-              {/* Pulse ring */}
               <div className="absolute rounded-full pulse-ring pointer-events-none"
                 style={{ inset: -7, border: '1px solid rgba(0,229,255,0.16)' }} />
-              {/* Container */}
               <div className="relative rounded-full flex items-center justify-center"
                 style={{
                   width: 90, height: 90,
@@ -72,7 +132,6 @@ export default function UploadPage({ onParsed }: Props) {
                   border: '1px solid rgba(235,28,40,0.30)',
                   boxShadow: '0 0 28px rgba(235,28,40,0.18), 0 0 60px rgba(235,28,40,0.06)',
                 }}>
-                {/* Logo — original red, no filter */}
                 <img
                   src={LOGO_SRC}
                   alt="HWLL"
@@ -83,32 +142,28 @@ export default function UploadPage({ onParsed }: Props) {
             </div>
           </div>
 
-          {/* Sub-label */}
           <p className="font-data uppercase px-2"
             style={{ color: 'var(--text-mid)', fontSize: 10, letterSpacing: '0.22em', marginBottom: 10 }}>
             Hopkins Washington Life Medicine Lab
           </p>
 
-          {/* HWLL wordmark */}
           <h1 className="font-title font-black text-glow-cyan"
             style={{ color: '#00E5FF', fontSize: 'clamp(36px, 10vw, 46px)', lineHeight: 1.0, letterSpacing: '0.08em', marginBottom: 8 }}>
             HWLL
           </h1>
 
-          {/* Chinese subtitle */}
           <h2 className="font-body font-semibold"
             style={{ color: 'var(--text-hi)', fontSize: 'clamp(15px, 4.5vw, 19px)', letterSpacing: '0.22em', marginBottom: 10 }}>
             智能配方系统
           </h2>
 
-          {/* Tagline */}
           <p className="font-body"
             style={{ color: 'var(--text-mid)', fontSize: 13, letterSpacing: '0.10em' }}>
             脂肪谱精准解析&nbsp;·&nbsp;循证 AI 配方生成
           </p>
         </motion.div>
 
-        {/* ── Upload Zone — 480px wide, ~296px tall (golden ratio ≈ 1.62) ── */}
+        {/* ── Upload Zone / Progress ── */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -118,11 +173,11 @@ export default function UploadPage({ onParsed }: Props) {
         >
           <AnimatePresence mode="wait">
             {status === 'parsing' ? (
-              /* ─ Parsing ─ */
+              /* ─ Parsing Progress ─ */
               <motion.div
                 key="parsing"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="relative bracket rounded-2xl text-center"
+                className="relative bracket rounded-2xl"
                 style={{
                   padding: '44px 36px',
                   background: 'linear-gradient(135deg, rgba(0,229,255,0.06), rgba(123,47,247,0.09))',
@@ -133,25 +188,35 @@ export default function UploadPage({ onParsed }: Props) {
                 <div className="absolute inset-x-0 h-0.5 scan-beam pointer-events-none"
                   style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.85), transparent)' }} />
 
-                <div className="flex justify-center" style={{ marginBottom: 20 }}>
-                  <div className="relative" style={{ width: 64, height: 64 }}>
-                    <div className="absolute inset-0 rounded-full"
-                      style={{ border: '1px solid rgba(0,229,255,0.15)', animation: 'pulse-ring 1.6s ease-in-out infinite' }} />
-                    <div className="absolute inset-2.5 rounded-full border-2 border-t-transparent"
-                      style={{ borderColor: '#00E5FF', animation: 'rotate-slow 1.2s linear infinite' }} />
-                    <div className="absolute inset-5 rounded-full"
-                      style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.55), rgba(123,47,247,0.35))' }} />
-                  </div>
+                {/* Percentage */}
+                <div className="flex justify-between items-baseline mb-4">
+                  <p className="font-title font-semibold text-glow-cyan"
+                    style={{ color: '#00E5FF', fontSize: 16, letterSpacing: '0.12em' }}>
+                    AI 解析中
+                  </p>
+                  <span className="font-data text-xl font-bold" style={{ color: '#00E5FF' }}>
+                    {Math.round(progress)}%
+                  </span>
                 </div>
-                <p className="font-title font-semibold text-glow-cyan"
-                  style={{ color: '#00E5FF', fontSize: 16, letterSpacing: '0.12em', marginBottom: 8 }}>
-                  AI 解析中
+
+                {/* Progress bar */}
+                <div className="relative rounded-full overflow-hidden" style={{ height: 10, background: 'rgba(0,229,255,0.08)' }}>
+                  <div
+                    className="absolute top-0 left-0 h-full rounded-full"
+                    style={{
+                      width: `${progress}%`,
+                      background: 'linear-gradient(to right, #00E5FF, #7B2FF7)',
+                      boxShadow: '0 0 12px rgba(0,229,255,0.6), 0 0 24px rgba(123,47,247,0.3)',
+                    }}
+                  />
+                </div>
+
+                {/* Stage text */}
+                <p className="font-body mt-5" style={{ color: 'var(--text-mid)', fontSize: 14, letterSpacing: '0.06em' }}>
+                  {stageText}
                 </p>
-                <p className="font-data" style={{ color: 'var(--text-mid)', fontSize: 11, letterSpacing: '0.18em', marginBottom: 6 }}>
+                <p className="font-data mt-2" style={{ color: 'var(--text-dim)', fontSize: 11, letterSpacing: '0.18em' }}>
                   EXTRACTING FATTY ACID PROFILE...
-                </p>
-                <p className="font-body" style={{ color: 'var(--text-dim)', fontSize: 13 }}>
-                  通常需要 3 — 5 秒
                 </p>
               </motion.div>
             ) : (
@@ -161,11 +226,6 @@ export default function UploadPage({ onParsed }: Props) {
                   {...getRootProps()}
                   className="relative bracket rounded-2xl text-center cursor-pointer transition-all duration-500"
                   style={{
-                    /*
-                      黄金比例：容器宽 480px（max-w 520px 减去 padding）
-                      内容高 ~180px + 上下 padding 58px×2 ≈ 296px
-                      480 / 296 ≈ 1.62 ✓
-                    */
                     padding: '46px 36px 42px',
                     background: isDragActive
                       ? 'linear-gradient(135deg, rgba(0,229,255,0.10), rgba(123,47,247,0.12))'
@@ -229,7 +289,7 @@ export default function UploadPage({ onParsed }: Props) {
                         color: '#FF7096', fontSize: 13,
                       }}
                     >
-                      <span className="font-body">⚠&ensp;{errorMsg}</span>
+                      <span className="font-body">{errorMsg}</span>
                       <button
                         className="font-title text-xs tracking-wider rounded-lg"
                         style={{ color: '#FF2D55', border: '1px solid rgba(255,45,85,0.4)', padding: '3px 10px', background: 'rgba(255,45,85,0.08)' }}

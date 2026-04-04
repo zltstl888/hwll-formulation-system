@@ -147,37 +147,59 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
+                {/* Name + Age on same row */}
+                <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 120px' }}>
+                  <div>
+                    <label className="font-body text-sm tracking-wider block mb-1.5 px-1" style={{ color: 'var(--text-mid)' }}>
+                      姓名
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="患者姓名"
+                      value={patient.name || ''}
+                      onChange={e => setPatient(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full rounded-xl px-4 py-3 font-body text-base outline-none transition-all duration-300"
+                      style={{ background: 'rgba(3,7,18,0.6)', border: '1px solid rgba(0,229,255,0.10)', color: 'var(--text-hi)', letterSpacing: '0.04em' }}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(0,229,255,0.45)'; e.target.style.boxShadow = '0 0 20px rgba(0,229,255,0.12)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(0,229,255,0.10)'; e.target.style.boxShadow = 'none'; }}
+                    />
+                  </div>
+                  <div>
+                    <label className="font-body text-sm tracking-wider block mb-1.5 px-1" style={{ color: 'var(--text-mid)' }}>
+                      年龄
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="岁"
+                      value={(patient as any).age || ''}
+                      onChange={e => setPatient(prev => ({ ...prev, age: e.target.value }))}
+                      className="w-full rounded-xl px-4 py-3 font-body text-base outline-none transition-all duration-300"
+                      style={{ background: 'rgba(3,7,18,0.6)', border: '1px solid rgba(0,229,255,0.10)', color: 'var(--text-hi)', letterSpacing: '0.04em' }}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(0,229,255,0.45)'; e.target.style.boxShadow = '0 0 20px rgba(0,229,255,0.12)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(0,229,255,0.10)'; e.target.style.boxShadow = 'none'; }}
+                    />
+                  </div>
+                </div>
+
+                {/* Diagnosis + Medications */}
                 {[
-                  { key: 'name',       label: '姓  名',  placeholder: '患者姓名', type: 'text'   },
-                  { key: 'age',        label: '年  龄',  placeholder: '岁',       type: 'number' },
-                  { key: 'diagnosis',  label: '主诊断',  placeholder: '如：冠心病、高血压'        },
-                  { key: 'medications',label: '当前用药',placeholder: '如：他汀类药物'           },
+                  { key: 'diagnosis',  label: '主诊断',  placeholder: '如：冠心病、高血压' },
+                  { key: 'medications', label: '当前用药', placeholder: '如：他汀类药物' },
                 ].map(field => (
                   <div key={field.key}>
-                    <label className="font-body text-sm tracking-wider block mb-2 px-1" style={{ color: 'var(--text-mid)' }}>
+                    <label className="font-body text-sm tracking-wider block mb-1.5 px-1" style={{ color: 'var(--text-mid)' }}>
                       {field.label}
                     </label>
                     <input
-                      type={field.type || 'text'}
+                      type="text"
                       placeholder={field.placeholder}
                       value={(patient as any)[field.key] || ''}
                       onChange={e => setPatient(prev => ({ ...prev, [field.key]: e.target.value }))}
                       className="w-full rounded-xl px-4 py-3 font-body text-base outline-none transition-all duration-300"
-                      style={{
-                        background: 'rgba(3,7,18,0.6)',
-                        border: '1px solid rgba(0,229,255,0.10)',
-                        color: 'var(--text-hi)',
-                        letterSpacing: '0.04em',
-                      }}
-                      onFocus={e => {
-                        e.target.style.borderColor = 'rgba(0,229,255,0.45)';
-                        e.target.style.boxShadow = '0 0 20px rgba(0,229,255,0.12)';
-                      }}
-                      onBlur={e => {
-                        e.target.style.borderColor = 'rgba(0,229,255,0.10)';
-                        e.target.style.boxShadow = 'none';
-                      }}
+                      style={{ background: 'rgba(3,7,18,0.6)', border: '1px solid rgba(0,229,255,0.10)', color: 'var(--text-hi)', letterSpacing: '0.04em' }}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(0,229,255,0.45)'; e.target.style.boxShadow = '0 0 20px rgba(0,229,255,0.12)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(0,229,255,0.10)'; e.target.style.boxShadow = 'none'; }}
                     />
                   </div>
                 ))}
@@ -343,12 +365,17 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          className="flex justify-center pb-4"
+          className="pb-4"
+          style={{ marginTop: 48 }}
         >
+          {/* Separator */}
+          <div className="h-px mb-8" style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.20), transparent)' }} />
+
+          <div className="flex justify-center">
           <button
             onClick={() => onGenerate(values, patient)}
             disabled={generating}
-            className="relative overflow-hidden rounded-2xl px-8 sm:px-16 py-5 font-title text-base font-bold tracking-widest transition-all duration-300 w-full sm:w-auto"
+            className={`relative overflow-hidden rounded-2xl px-8 sm:px-16 py-5 font-title text-lg font-bold tracking-widest transition-all duration-300 w-full sm:w-auto${!generating ? ' border-pulse' : ''}`}
             style={{
               background: generating
                 ? 'rgba(9,18,32,0.8)'
@@ -392,6 +419,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
               '生成个性化配方  →'
             )}
           </button>
+          </div>
         </motion.div>
       </div>
     </div>

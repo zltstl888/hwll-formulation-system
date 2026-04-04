@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import UploadPage from './pages/UploadPage';
 import ReviewPage from './pages/ReviewPage';
@@ -7,7 +7,7 @@ import { generatePlan } from './api/formulation';
 import type { LipidValues, PatientInfo, FormulationResult } from './types';
 import './index.css';
 
-type Step = 'upload' | 'review' | 'report';
+type Step = 'upload' | 'review' | 'generating' | 'report';
 
 const PAGE_TRANSITION = {
   initial: { opacity: 0, x: 30 },
@@ -16,6 +16,58 @@ const PAGE_TRANSITION = {
   transition: { duration: 0.3 },
 };
 
+const LOGO_SRC = `${import.meta.env.BASE_URL}hwll-logo.png`;
+
+const GEN_STAGES = [
+  { pct: 18,  text: '分析脂肪酸失衡模式...' },
+  { pct: 40,  text: '检索循证医学数据库...' },
+  { pct: 62,  text: '构建五维干预方案...' },
+  { pct: 82,  text: '计算个性化产品剂量...' },
+  { pct: 100, text: '生成临床配方报告...' },
+];
+const GEN_TIMES = [1000, 2400, 3800, 5000, 6000];
+const MIN_GENERATE_MS = 6000;
+
+function useGenProgress(isGenerating: boolean) {
+  const [progress, setProgress] = useState(0);
+  const [stageText, setStageText] = useState('');
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isGenerating) { setProgress(0); setStageText(''); return; }
+    const start = performance.now();
+    setStageText(GEN_STAGES[0].text);
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      let idx = 0;
+      for (let i = 0; i < GEN_TIMES.length; i++) {
+        if (elapsed < GEN_TIMES[i]) { idx = i; break; }
+        idx = i;
+      }
+      const stage = GEN_STAGES[idx];
+      const prevTime = idx > 0 ? GEN_TIMES[idx - 1] : 0;
+      const prevPct = idx > 0 ? GEN_STAGES[idx - 1].pct : 0;
+      const segDur = GEN_TIMES[idx] - prevTime;
+      const segElapsed = Math.min(elapsed - prevTime, segDur);
+      const eased = 1 - Math.pow(1 - segElapsed / segDur, 2);
+      setProgress(Math.min(prevPct + (stage.pct - prevPct) * eased, 100));
+      setStageText(stage.text);
+
+      if (elapsed < MIN_GENERATE_MS) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        setProgress(100);
+        setStageText(GEN_STAGES[GEN_STAGES.length - 1].text);
+      }
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [isGenerating]);
+
+  return { progress, stageText };
+}
+
 export default function App() {
   const [step, setStep] = useState<Step>('upload');
   const [lipidValues, setLipidValues] = useState<LipidValues | null>(null);
@@ -23,6 +75,7 @@ export default function App() {
   const [result, setResult] = useState<FormulationResult | null>(null);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState('');
+  const { progress, stageText } = useGenProgress(step === 'generating');
 
   const handleParsed = (data: LipidValues, file: File) => {
     setLipidValues(data);
@@ -33,12 +86,19 @@ export default function App() {
   const handleGenerate = async (values: LipidValues, patientInfo: Partial<PatientInfo>) => {
     setGenerating(true);
     setGenError('');
+    setStep('generating');
     try {
-      const plan = await generatePlan(values, patientInfo);
+      const [plan] = await Promise.all([
+        generatePlan(values, patientInfo),
+        new Promise(r => setTimeout(r, MIN_GENERATE_MS)),
+      ]);
       setResult(plan);
+      // Brief pause at 100% for satisfaction
+      await new Promise(r => setTimeout(r, 400));
       setStep('report');
     } catch (e: any) {
       setGenError(e.message || '配方生成失败，请重试');
+      setStep('review');
     } finally {
       setGenerating(false);
     }
@@ -70,9 +130,69 @@ export default function App() {
           {genError && (
             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-sm"
               style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#fca5a5' }}>
-              ⚠ {genError}
+              {genError}
             </div>
           )}
+        </motion.div>
+      )}
+      {step === 'generating' && (
+        <motion.div key="generating" {...PAGE_TRANSITION}>
+          <div className="grid-bg min-h-screen relative flex flex-col items-center justify-center overflow-hidden"
+            style={{ padding: '3vh max(24px, 5vw)' }}>
+            {/* Ambient glows */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+              style={{ width: 600, height: 280, background: 'radial-gradient(ellipse, rgba(123,47,247,0.08) 0%, transparent 70%)', filter: 'blur(48px)' }} />
+            <div className="absolute bottom-0 right-1/4 pointer-events-none"
+              style={{ width: 400, height: 400, background: 'radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%)', filter: 'blur(56px)' }} />
+
+            <div className="relative z-10 flex flex-col items-center" style={{ width: '100%', maxWidth: 480 }}>
+              {/* Logo */}
+              <div className="mb-8">
+                <div className="relative rounded-full flex items-center justify-center"
+                  style={{
+                    width: 72, height: 72,
+                    background: 'radial-gradient(circle, rgba(235,28,40,0.07) 0%, rgba(3,7,18,0.85) 70%)',
+                    border: '1px solid rgba(235,28,40,0.25)',
+                    boxShadow: '0 0 24px rgba(235,28,40,0.15)',
+                  }}>
+                  <img src={LOGO_SRC} alt="HWLL" className="flicker" style={{ width: 64, height: 64, objectFit: 'contain' }} />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h2 className="font-title text-xl font-bold tracking-widest text-glow-cyan mb-3"
+                style={{ color: '#00E5FF', letterSpacing: '0.15em' }}>
+                配方生成中
+              </h2>
+
+              {/* Percentage */}
+              <p className="font-data text-4xl font-bold mb-6"
+                style={{ color: '#00E5FF', textShadow: '0 0 20px rgba(0,229,255,0.8)' }}>
+                {Math.round(progress)}%
+              </p>
+
+              {/* Progress bar */}
+              <div className="w-full relative rounded-full overflow-hidden mb-6"
+                style={{ height: 10, background: 'rgba(0,229,255,0.08)' }}>
+                <div
+                  className="absolute top-0 left-0 h-full rounded-full"
+                  style={{
+                    width: `${progress}%`,
+                    background: 'linear-gradient(to right, #7B2FF7, #00E5FF)',
+                    boxShadow: '0 0 12px rgba(0,229,255,0.6), 0 0 24px rgba(123,47,247,0.3)',
+                  }}
+                />
+              </div>
+
+              {/* Stage text */}
+              <p className="font-body text-base mb-2" style={{ color: 'var(--text-mid)', letterSpacing: '0.06em' }}>
+                {stageText}
+              </p>
+              <p className="font-data text-xs" style={{ color: 'var(--text-dim)', letterSpacing: '0.18em' }}>
+                EVIDENCE-BASED AI FORMULATION ENGINE
+              </p>
+            </div>
+          </div>
         </motion.div>
       )}
       {step === 'report' && result && (
