@@ -1,10 +1,9 @@
 services:
   - type: web
     name: hwll-api
-    runtime: node
+    runtime: docker
     rootDir: backend
-    buildCommand: apt-get install -y poppler-utils && npm install && npm run build
-    startCommand: npm start
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: PORT
         value: 10000
