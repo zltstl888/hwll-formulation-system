@@ -137,7 +137,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                 <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'var(--text-dim)', letterSpacing: '0.18em' }}>
                   CLINICAL SUMMARY
                 </p>
-                <p className="font-body text-base leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.75 }}>
+                <p className="font-body leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.85, fontSize: 15 }}>
                   {risk.risk_summary}
                 </p>
               </div>
@@ -337,11 +337,11 @@ export default function ReportPage({ result, onRestart }: Props) {
         {/* Footer */}
         <div className="mt-14 text-center no-print">
           <div className="h-px mb-6" style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.15), transparent)' }} />
-          <p className="font-data text-xs tracking-widest mb-1" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
+          <p className="font-body text-sm mb-1" style={{ color: 'var(--text-dim)', lineHeight: 1.8 }}>
             本方案基于循证医学算法生成，仅供医疗专业人员参考，不替代临床诊疗判断
           </p>
           <p className="font-data text-xs tracking-widest" style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}>
-            HWLL INTELLIGENT FORMULATION SYSTEM · APEX AI · 2026
+            HWLL INTELLIGENT FORMULATION SYSTEM · Hopkins Washington Life Medicine Lab · 2026
           </p>
         </div>
       </div>
@@ -391,7 +391,7 @@ function ProductCard({ product, palette, expanded, onToggle }: { product: any; p
       </div>
 
       {/* Indication */}
-      <p className="font-body text-sm leading-relaxed mb-5" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>
+      <p className="font-body leading-relaxed mb-5" style={{ color: 'var(--text-mid)', lineHeight: 1.8, fontSize: 14 }}>
         {product.indication}
       </p>
 

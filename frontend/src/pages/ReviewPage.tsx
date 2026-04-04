@@ -153,7 +153,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                   { key: 'medications',label: '当前用药',placeholder: '如：他汀类药物'           },
                 ].map(field => (
                   <div key={field.key}>
-                    <label className="font-data text-xs tracking-widest block mb-2" style={{ color: 'var(--text-mid)' }}>
+                    <label className="font-body text-sm tracking-wider block mb-2 px-1" style={{ color: 'var(--text-mid)' }}>
                       {field.label}
                     </label>
                     <input
@@ -161,7 +161,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                       placeholder={field.placeholder}
                       value={(patient as any)[field.key] || ''}
                       onChange={e => setPatient(prev => ({ ...prev, [field.key]: e.target.value }))}
-                      className="w-full rounded-xl px-4 py-3 font-body text-sm outline-none transition-all duration-300"
+                      className="w-full rounded-xl px-4 py-3 font-body text-base outline-none transition-all duration-300"
                       style={{
                         background: 'rgba(3,7,18,0.6)',
                         border: '1px solid rgba(0,229,255,0.10)',
@@ -182,8 +182,8 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
 
                 {/* Gender */}
                 <div>
-                  <label className="font-data text-xs tracking-widest block mb-2" style={{ color: 'var(--text-mid)' }}>
-                    性  别
+                  <label className="font-body text-sm tracking-wider block mb-2 px-1" style={{ color: 'var(--text-mid)' }}>
+                    性别
                   </label>
                   <div className="flex gap-3">
                     {[{ v: 'male', label: '男' }, { v: 'female', label: '女' }].map(g => (
@@ -235,7 +235,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {KEY_FIELDS.map((field, idx) => {
                   const val = values[field.key];
                   const num = typeof val === 'number' ? val : parseFloat(String(val));
@@ -246,55 +246,48 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                   return (
                     <motion.div
                       key={field.key}
-                      className="flex items-center gap-4"
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.2 + idx * 0.04 }}
                     >
-                      <div className="w-28 flex-shrink-0">
-                        <span className="font-data text-xs tracking-wider" style={{ color: 'var(--text-mid)' }}>
-                          {field.label}
+                      {/* 标签行 */}
+                      <div className="flex items-center justify-between mb-1.5 px-1">
+                        <span className="font-body text-sm tracking-wider" style={{ color: 'var(--text-mid)' }}>
+                          {field.label}{field.unit ? `（${field.unit}）` : ''}
                         </span>
-                      </div>
-                      <div className="flex-1 relative">
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={val ?? ''}
-                          onChange={e => updateValue(field.key, e.target.value)}
-                          className="w-full rounded-xl px-4 py-2.5 font-data text-base text-right outline-none transition-all duration-300 tracking-wider"
-                          style={{
-                            background: crit ? 'rgba(255,45,85,0.06)' : warn ? 'rgba(255,184,0,0.05)' : 'rgba(3,7,18,0.6)',
-                            border: `1px solid ${crit ? sc.border : warn ? sc.border : 'rgba(0,229,255,0.10)'}`,
-                            color: crit ? sc.color : warn ? sc.color : 'var(--text-hi)',
-                            boxShadow: crit || warn ? sc.glow : 'none',
-                          }}
-                          onFocus={e => {
-                            if (!crit && !warn) {
-                              e.target.style.borderColor = 'rgba(0,229,255,0.4)';
-                              e.target.style.boxShadow = '0 0 16px rgba(0,229,255,0.10)';
-                            }
-                          }}
-                          onBlur={e => {
-                            if (!crit && !warn) {
-                              e.target.style.borderColor = 'rgba(0,229,255,0.10)';
-                              e.target.style.boxShadow = 'none';
-                            }
-                          }}
-                        />
-                        {field.unit && (
-                          <span className="absolute right-10 top-1/2 -translate-y-1/2 font-data text-xs pointer-events-none"
-                            style={{ color: 'var(--text-dim)' }}>{field.unit}</span>
-                        )}
-                      </div>
-                      {!isNaN(num) && (
-                        <div className="w-12 flex-shrink-0 text-right">
-                          <span className="font-title text-xs font-semibold px-2 py-1 rounded-md"
+                        {!isNaN(num) && (
+                          <span className="font-title text-xs font-semibold px-2.5 py-1 rounded-md"
                             style={{ background: sc.bg, color: sc.color, border: `1px solid ${sc.border}` }}>
                             {sc.label}
                           </span>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      {/* 输入框 */}
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={val ?? ''}
+                        onChange={e => updateValue(field.key, e.target.value)}
+                        className="w-full rounded-xl px-4 py-3 font-data text-lg text-right outline-none transition-all duration-300 tracking-wider"
+                        style={{
+                          background: crit ? 'rgba(255,45,85,0.06)' : warn ? 'rgba(255,184,0,0.05)' : 'rgba(3,7,18,0.6)',
+                          border: `1px solid ${crit ? sc.border : warn ? sc.border : 'rgba(0,229,255,0.10)'}`,
+                          color: crit ? sc.color : warn ? sc.color : 'var(--text-hi)',
+                          boxShadow: crit || warn ? sc.glow : 'none',
+                        }}
+                        onFocus={e => {
+                          if (!crit && !warn) {
+                            e.target.style.borderColor = 'rgba(0,229,255,0.4)';
+                            e.target.style.boxShadow = '0 0 16px rgba(0,229,255,0.10)';
+                          }
+                        }}
+                        onBlur={e => {
+                          if (!crit && !warn) {
+                            e.target.style.borderColor = 'rgba(0,229,255,0.10)';
+                            e.target.style.boxShadow = 'none';
+                          }
+                        }}
+                      />
                     </motion.div>
                   );
                 })}
@@ -315,16 +308,16 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                 {showOther && (
                   <div className="mt-4 space-y-3 pt-4" style={{ borderTop: '1px solid rgba(0,229,255,0.06)' }}>
                     {OTHER_FIELDS.map(field => (
-                      <div key={field.key} className="flex items-center gap-4">
-                        <span className="font-data text-xs w-28 flex-shrink-0 tracking-wider" style={{ color: 'var(--text-dim)' }}>
-                          {field.label}
+                      <div key={field.key}>
+                        <span className="font-body text-sm tracking-wider block mb-1.5 px-1" style={{ color: 'var(--text-dim)' }}>
+                          {field.label}{field.unit ? `（${field.unit}）` : ''}
                         </span>
                         <input
                           type="number" step="0.01"
                           value={values[field.key] ?? ''}
                           onChange={e => updateValue(field.key, e.target.value)}
                           placeholder="—"
-                          className="flex-1 rounded-xl px-4 py-2 font-data text-sm text-right outline-none"
+                          className="w-full rounded-xl px-4 py-3 font-data text-base text-right outline-none"
                           style={{
                             background: 'rgba(3,7,18,0.5)',
                             border: '1px solid rgba(0,229,255,0.07)',
@@ -333,9 +326,6 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                           onFocus={e => (e.target.style.borderColor = 'rgba(0,229,255,0.3)')}
                           onBlur={e => (e.target.style.borderColor = 'rgba(0,229,255,0.07)')}
                         />
-                        <span className="font-data text-xs w-16 text-right flex-shrink-0" style={{ color: 'var(--text-dim)' }}>
-                          {field.unit}
-                        </span>
                       </div>
                     ))}
                   </div>
