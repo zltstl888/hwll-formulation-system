@@ -51,7 +51,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
   };
 
   return (
-    <div className="grid-bg min-h-screen relative px-6 py-10 overflow-x-hidden">
+    <div className="grid-bg min-h-screen relative px-4 sm:px-6 py-8 sm:py-10 overflow-x-hidden">
       {/* Ambient */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[250px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse, rgba(123,47,247,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
@@ -59,7 +59,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
       <div className="relative z-10 max-w-5xl mx-auto">
 
         {/* ── Top Nav ── */}
-        <div className="flex items-center justify-between mb-12 no-print">
+        <div className="flex items-center justify-between mb-8 sm:mb-12 no-print">
           <button
             onClick={onBack}
             className="font-body text-sm tracking-wider flex items-center gap-2 px-4 py-2 rounded-lg transition-all"
@@ -70,8 +70,8 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             ← 重新上传
           </button>
 
-          {/* Step indicator */}
-          <div className="flex items-center gap-0">
+          {/* Step indicator — hidden on mobile */}
+          <div className="hidden sm:flex items-center gap-0">
             {STEPS.map((step, i) => (
               <div key={i} className="flex items-center">
                 <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             ))}
           </div>
 
-          <div className="w-28" />
+          <div className="w-0 sm:w-28" />
         </div>
 
         {/* ── Section Title ── */}
@@ -126,7 +126,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <div className="relative bracket rounded-2xl p-8 h-full"
+            <div className="relative bracket rounded-2xl p-5 sm:p-8 h-full"
               style={{
                 background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
                 border: '1px solid rgba(0,229,255,0.12)',
@@ -217,12 +217,12 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <div className="relative bracket rounded-2xl p-8"
+            <div className="relative bracket rounded-2xl p-5 sm:p-8"
               style={{
                 background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
                 border: '1px solid rgba(0,229,255,0.12)',
               }}>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center"
                   style={{ background: 'rgba(0,229,255,0.12)', border: '1px solid rgba(0,229,255,0.25)' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" strokeWidth="2">
@@ -355,7 +355,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
           <button
             onClick={() => onGenerate(values, patient)}
             disabled={generating}
-            className="relative overflow-hidden rounded-2xl px-16 py-5 font-title text-base font-bold tracking-widest transition-all duration-300"
+            className="relative overflow-hidden rounded-2xl px-8 sm:px-16 py-5 font-title text-base font-bold tracking-widest transition-all duration-300 w-full sm:w-auto"
             style={{
               background: generating
                 ? 'rgba(9,18,32,0.8)'
@@ -365,7 +365,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
               boxShadow: generating ? 'none' : '0 0 40px rgba(0,229,255,0.2), 0 0 80px rgba(0,229,255,0.08)',
               cursor: generating ? 'not-allowed' : 'pointer',
               letterSpacing: '0.2em',
-              minWidth: '340px',
+              maxWidth: 480,
             }}
             onMouseEnter={e => {
               if (!generating) {

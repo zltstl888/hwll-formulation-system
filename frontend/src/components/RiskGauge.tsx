@@ -52,7 +52,7 @@ export default function RiskGauge({ level, aaEpaRatio, epaPct, omega3Index, summ
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
-        <svg width="280" height="240" viewBox="0 0 280 240" style={{ overflow: 'visible' }}>
+        <svg width="280" height="240" viewBox="0 0 280 240" style={{ overflow: 'visible', width: '100%', maxWidth: 280, height: 'auto' }}>
           <defs>
             <filter id="glow-arc">
               <feGaussianBlur stdDeviation="4" result="blur" />

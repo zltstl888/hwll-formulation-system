@@ -32,7 +32,7 @@ export default function ReportPage({ result, onRestart }: Props) {
   const condProducts = formulation.products.filter(p => p.category === 'conditional');
 
   return (
-    <div className="grid-bg min-h-screen relative px-6 py-10 overflow-x-hidden">
+    <div className="grid-bg min-h-screen relative px-4 sm:px-6 py-8 sm:py-10 overflow-x-hidden">
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] pointer-events-none"
         style={{ background: `radial-gradient(ellipse, rgba(0,229,255,0.05) 0%, transparent 70%)`, filter: 'blur(50px)' }} />
@@ -40,7 +40,7 @@ export default function ReportPage({ result, onRestart }: Props) {
       <div className="relative z-10 max-w-6xl mx-auto">
 
         {/* ── Top bar ── */}
-        <div className="flex items-center justify-between mb-12 no-print">
+        <div className="flex items-center justify-between mb-8 sm:mb-12 no-print">
           <button
             onClick={onRestart}
             className="font-body text-sm tracking-wider flex items-center gap-2 px-4 py-2 rounded-lg transition-all"
@@ -51,7 +51,7 @@ export default function ReportPage({ result, onRestart }: Props) {
             ← 重新开始
           </button>
 
-          <div className="flex items-center gap-0">
+          <div className="hidden sm:flex items-center gap-0">
             {['上传报告', '确认数值', '生成配方'].map((step, i) => (
               <div key={i} className="flex items-center">
                 <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                       border: '1px solid rgba(0,255,148,0.35)',
                       color: '#00FF94',
                     }}>✓</div>
-                  <span className="font-body text-xs tracking-wider hidden sm:inline" style={{ color: '#00FF94' }}>{step}</span>
+                  <span className="font-body text-xs tracking-wider hidden md:inline" style={{ color: '#00FF94' }}>{step}</span>
                 </div>
                 {i < 2 && <div className="w-10 h-px mx-3" style={{ background: 'rgba(0,255,148,0.2)' }} />}
               </div>
@@ -99,7 +99,7 @@ export default function ReportPage({ result, onRestart }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-10 p-10 pt-14">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-5 pt-10 sm:p-10 sm:pt-14">
             {/* Gauge */}
             <div className="flex-shrink-0">
               <RiskGauge
@@ -165,13 +165,13 @@ export default function ReportPage({ result, onRestart }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="flex gap-1 mb-6 p-1.5 rounded-2xl no-print"
-            style={{ background: 'rgba(6,13,26,0.9)', border: '1px solid rgba(0,229,255,0.08)' }}>
+          <div className="flex gap-1 mb-6 p-1.5 rounded-2xl no-print overflow-x-auto"
+            style={{ background: 'rgba(6,13,26,0.9)', border: '1px solid rgba(0,229,255,0.08)', WebkitOverflowScrolling: 'touch' }}>
             {TABS.map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className="flex-1 py-3 rounded-xl font-title text-xs font-semibold tracking-wider transition-all duration-300"
+                className="flex-none sm:flex-1 py-3 px-3 sm:px-1 rounded-xl font-title text-xs font-semibold tracking-wider transition-all duration-300 whitespace-nowrap"
                 style={{
                   background: activeTab === tab
                     ? 'linear-gradient(135deg, rgba(0,229,255,0.14), rgba(123,47,247,0.16))'
@@ -260,7 +260,7 @@ export default function ReportPage({ result, onRestart }: Props) {
               )}
 
               {activeTab === '运动处方' && (
-                <div className="relative bracket rounded-2xl p-8"
+                <div className="relative bracket rounded-2xl p-5 sm:p-8"
                   style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
                   <h3 className="font-title text-lg font-bold mb-8 tracking-wide" style={{ color: 'var(--text-hi)' }}>
                     {formulation.exercise_prescription.type}
@@ -290,7 +290,7 @@ export default function ReportPage({ result, onRestart }: Props) {
               )}
 
               {activeTab === '生活方式' && (
-                <div className="relative bracket rounded-2xl p-8"
+                <div className="relative bracket rounded-2xl p-5 sm:p-8"
                   style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
                   <ListBlock label="干预要点" items={formulation.lifestyle_intervention.key_points} color="#7B2FF7" />
                   <p className="font-body text-sm mt-6 pt-5 leading-relaxed"
@@ -301,7 +301,7 @@ export default function ReportPage({ result, onRestart }: Props) {
               )}
 
               {activeTab === '随访计划' && (
-                <div className="relative bracket rounded-2xl p-8"
+                <div className="relative bracket rounded-2xl p-5 sm:p-8"
                   style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="space-y-5">
@@ -461,7 +461,7 @@ function InterventionPanel({ title, evidence, sections }: {
   sections: { label: string; items: string[]; color: string }[];
 }) {
   return (
-    <div className="relative bracket rounded-2xl p-8"
+    <div className="relative bracket rounded-2xl p-5 sm:p-8"
       style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
       <h3 className="font-title text-lg font-bold tracking-wide mb-2" style={{ color: 'var(--text-hi)' }}>{title}</h3>
       <p className="font-body text-sm mb-8 leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.75 }}>{evidence}</p>
