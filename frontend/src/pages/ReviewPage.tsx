@@ -10,188 +10,332 @@ interface Props {
   generating: boolean;
 }
 
-// 关键指标（显示在顶部突出位置）
 const KEY_FIELDS = [
-  { key: 'aa_epa_ratio', label: 'AA:EPA 比值', unit: '', critical: (v: number) => v > 30, warning: (v: number) => v > 10 },
-  { key: 'omega3_index', label: 'Omega-3 指数', unit: '%', critical: (v: number) => v < 4, warning: (v: number) => v < 7 },
-  { key: 'epa', label: 'EPA', unit: '%', critical: (v: number) => v < 0.5, warning: (v: number) => v < 1.5 },
-  { key: 'dha', label: 'DHA', unit: '%', critical: () => false, warning: (v: number) => v < 3 },
-  { key: 'aa', label: 'AA', unit: '%', critical: () => false, warning: (v: number) => v > 10 },
-  { key: 'omega6_omega3_ratio', label: 'ω6:ω3 比值', unit: '', critical: (v: number) => v > 20, warning: (v: number) => v > 10 },
+  { key: 'aa_epa_ratio',       label: 'AA : EPA',      unit: '',  isCritical: (v: number) => v > 30, isWarning: (v: number) => v > 10 },
+  { key: 'omega3_index',       label: 'Omega-3 指数', unit: '%', isCritical: (v: number) => v < 4,  isWarning: (v: number) => v < 7  },
+  { key: 'epa',                label: 'EPA',            unit: '%', isCritical: (v: number) => v < 0.5,isWarning: (v: number) => v < 1.5},
+  { key: 'dha',                label: 'DHA',            unit: '%', isCritical: () => false,           isWarning: (v: number) => v < 3  },
+  { key: 'aa',                 label: 'AA',             unit: '%', isCritical: () => false,           isWarning: (v: number) => v > 10 },
+  { key: 'omega6_omega3_ratio',label: 'ω6 : ω3',       unit: '',  isCritical: (v: number) => v > 20, isWarning: (v: number) => v > 10 },
 ];
 
-// 其他指标（折叠展示）
 const OTHER_FIELDS = [
-  { key: 'omega3_total', label: 'Omega-3 总量', unit: '%' },
-  { key: 'omega6_total', label: 'Omega-6 总量', unit: '%' },
-  { key: 'la', label: 'LA（亚油酸）', unit: '%' },
-  { key: 'total_cholesterol', label: '总胆固醇', unit: 'mmol/L' },
-  { key: 'ldl_c', label: 'LDL-C', unit: 'mmol/L' },
-  { key: 'triglyceride', label: '甘油三酯', unit: 'mmol/L' },
-  { key: 'hdl_c', label: 'HDL-C', unit: 'mmol/L' },
+  { key: 'omega3_total',     label: 'Omega-3 总量', unit: '%'      },
+  { key: 'omega6_total',     label: 'Omega-6 总量', unit: '%'      },
+  { key: 'la',               label: 'LA 亚油酸',    unit: '%'      },
+  { key: 'total_cholesterol',label: '总胆固醇',      unit: 'mmol/L' },
+  { key: 'ldl_c',            label: 'LDL-C',        unit: 'mmol/L' },
+  { key: 'triglyceride',     label: '甘油三酯',      unit: 'mmol/L' },
+  { key: 'hdl_c',            label: 'HDL-C',        unit: 'mmol/L' },
 ];
 
-function StatusBadge({ critical, warning }: { critical: boolean; warning: boolean }) {
-  if (critical) return <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>偏高</span>;
-  if (warning) return <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24' }}>注意</span>;
-  return <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>正常</span>;
+const STEPS = ['上传报告', '确认数值', '生成配方'];
+
+function statusColor(critical: boolean, warning: boolean) {
+  if (critical) return { color: '#FF2D55', border: 'rgba(255,45,85,0.4)',  bg: 'rgba(255,45,85,0.08)',  label: '异常', glow: '0 0 20px rgba(255,45,85,0.4)' };
+  if (warning)  return { color: '#FFB800', border: 'rgba(255,184,0,0.4)',  bg: 'rgba(255,184,0,0.08)',  label: '注意', glow: '0 0 20px rgba(255,184,0,0.3)'  };
+  return          { color: '#00FF94', border: 'rgba(0,255,148,0.3)', bg: 'rgba(0,255,148,0.06)', label: '正常', glow: 'none' };
 }
 
 export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, generating }: Props) {
   const [values, setValues] = useState<LipidValues>({ ...lipidValues });
-  const [patient, setPatient] = useState<Partial<PatientInfo>>({ name: lipidValues.patient_name || '', gender: '' });
+  const [patient, setPatient] = useState<Partial<PatientInfo>>({
+    name: lipidValues.patient_name || '',
+    gender: '',
+  });
   const [showOther, setShowOther] = useState(false);
 
   const updateValue = (key: string, raw: string) => {
-    const num = raw === '' ? undefined : parseFloat(raw);
-    setValues(prev => ({ ...prev, [key]: isNaN(num as number) ? undefined : num }));
+    const num = parseFloat(raw);
+    setValues(prev => ({ ...prev, [key]: raw === '' ? undefined : isNaN(num) ? undefined : num }));
   };
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ background: '#0D1117' }}>
-      <div className="max-w-4xl mx-auto">
-        {/* 顶部导航 */}
-        <div className="flex items-center justify-between mb-8">
-          <button onClick={onBack} className="flex items-center gap-2 text-sm transition-colors" style={{ color: '#8b949e' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#e6edf3')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#8b949e')}>
+    <div className="grid-bg min-h-screen relative px-6 py-10 overflow-x-hidden">
+      {/* Ambient */}
+      <div className="absolute top-0 right-1/4 w-[500px] h-[250px] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(123,47,247,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+
+      <div className="relative z-10 max-w-5xl mx-auto">
+
+        {/* ── Top Nav ── */}
+        <div className="flex items-center justify-between mb-12 no-print">
+          <button
+            onClick={onBack}
+            className="font-body text-sm tracking-wider flex items-center gap-2 px-4 py-2 rounded-lg transition-all"
+            style={{ color: 'var(--text-mid)', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,255,0.3)'; (e.currentTarget as HTMLElement).style.color = '#00E5FF'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-mid)'; }}
+          >
             ← 重新上传
           </button>
-          <div className="flex gap-8" style={{ color: '#6e7681' }}>
-            {['上传 PDF', '确认数值', '查看配方'].map((step, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{ background: i === 1 ? '#06B6D4' : i < 1 ? '#22c55e' : '#21262d', color: '#fff' }}>
-                  {i < 1 ? '✓' : i + 1}
-                </span>
-                <span style={{ color: i === 1 ? '#e6edf3' : i < 1 ? '#22c55e' : '#6e7681' }}>{step}</span>
-                {i < 2 && <span style={{ color: '#30363d' }}>→</span>}
+
+          {/* Step indicator */}
+          <div className="flex items-center gap-0">
+            {STEPS.map((step, i) => (
+              <div key={i} className="flex items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center font-title text-xs font-bold"
+                    style={{
+                      background: i < 1 ? 'rgba(0,255,148,0.15)' : i === 1 ? 'rgba(0,229,255,0.15)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${i < 1 ? 'rgba(0,255,148,0.4)' : i === 1 ? 'rgba(0,229,255,0.45)' : 'rgba(255,255,255,0.07)'}`,
+                      color: i < 1 ? '#00FF94' : i === 1 ? '#00E5FF' : 'var(--text-dim)',
+                      boxShadow: i === 1 ? '0 0 14px rgba(0,229,255,0.25)' : 'none',
+                    }}>
+                    {i < 1 ? '✓' : i + 1}
+                  </div>
+                  <span className="font-body text-xs tracking-wider hidden sm:inline"
+                    style={{ color: i < 1 ? '#00FF94' : i === 1 ? 'var(--text-hi)' : 'var(--text-dim)' }}>
+                    {step}
+                  </span>
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div className="w-12 h-px mx-3"
+                    style={{ background: 'linear-gradient(to right, rgba(0,229,255,0.2), rgba(0,229,255,0.05))' }} />
+                )}
               </div>
             ))}
           </div>
-          <div className="w-24" />
+
+          <div className="w-28" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 左侧：患者信息 */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-            <div className="rounded-xl p-6" style={{ background: '#161b22', border: '1px solid #30363d' }}>
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-1.5 h-5 rounded-full" style={{ background: '#3B82F6' }} />
-                <h2 className="text-white font-semibold">患者信息</h2>
-                <span className="text-xs ml-1" style={{ color: '#6e7681' }}>（选填）</span>
+        {/* ── Section Title ── */}
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-10"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-1 h-8 rounded-full" style={{ background: 'linear-gradient(to bottom, #00E5FF, rgba(123,47,247,0.5))' }} />
+            <h1 className="font-title text-2xl font-bold tracking-wider" style={{ color: 'var(--text-hi)' }}>
+              VERIFY DATA
+            </h1>
+          </div>
+          <p className="font-body text-base pl-4" style={{ color: 'var(--text-mid)', letterSpacing: '0.06em' }}>
+            确认检测数值，补充患者信息，然后生成配方
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+          {/* ── Left: Patient Info ── */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="relative bracket rounded-2xl p-8 h-full"
+              style={{
+                background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
+                border: '1px solid rgba(0,229,255,0.12)',
+              }}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: 'rgba(123,47,247,0.2)', border: '1px solid rgba(123,47,247,0.3)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B2FF7" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="font-title text-sm font-semibold tracking-wider" style={{ color: 'var(--text-hi)' }}>患者信息</h2>
+                  <p className="font-data text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>PATIENT PROFILE · 选填</p>
+                </div>
               </div>
-              <div className="space-y-4">
+
+              <div className="space-y-5">
                 {[
-                  { key: 'name', label: '姓名', placeholder: '患者姓名' },
-                  { key: 'age', label: '年龄', placeholder: '岁', type: 'number' },
-                  { key: 'diagnosis', label: '主诊断', placeholder: '如：冠心病、高血压' },
-                  { key: 'medications', label: '当前用药', placeholder: '如：他汀类药物' },
+                  { key: 'name',       label: '姓  名',  placeholder: '患者姓名', type: 'text'   },
+                  { key: 'age',        label: '年  龄',  placeholder: '岁',       type: 'number' },
+                  { key: 'diagnosis',  label: '主诊断',  placeholder: '如：冠心病、高血压'        },
+                  { key: 'medications',label: '当前用药',placeholder: '如：他汀类药物'           },
                 ].map(field => (
                   <div key={field.key}>
-                    <label className="text-xs mb-1.5 block" style={{ color: '#8b949e' }}>{field.label}</label>
+                    <label className="font-data text-xs tracking-widest block mb-2" style={{ color: 'var(--text-mid)' }}>
+                      {field.label}
+                    </label>
                     <input
                       type={field.type || 'text'}
                       placeholder={field.placeholder}
                       value={(patient as any)[field.key] || ''}
                       onChange={e => setPatient(prev => ({ ...prev, [field.key]: e.target.value }))}
-                      className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-colors"
-                      style={{ background: '#0D1117', border: '1px solid #30363d', color: '#e6edf3' }}
-                      onFocus={e => (e.target.style.borderColor = '#06B6D4')}
-                      onBlur={e => (e.target.style.borderColor = '#30363d')}
+                      className="w-full rounded-xl px-4 py-3 font-body text-sm outline-none transition-all duration-300"
+                      style={{
+                        background: 'rgba(3,7,18,0.6)',
+                        border: '1px solid rgba(0,229,255,0.10)',
+                        color: 'var(--text-hi)',
+                        letterSpacing: '0.04em',
+                      }}
+                      onFocus={e => {
+                        e.target.style.borderColor = 'rgba(0,229,255,0.45)';
+                        e.target.style.boxShadow = '0 0 20px rgba(0,229,255,0.12)';
+                      }}
+                      onBlur={e => {
+                        e.target.style.borderColor = 'rgba(0,229,255,0.10)';
+                        e.target.style.boxShadow = 'none';
+                      }}
                     />
                   </div>
                 ))}
+
+                {/* Gender */}
                 <div>
-                  <label className="text-xs mb-1.5 block" style={{ color: '#8b949e' }}>性别</label>
+                  <label className="font-data text-xs tracking-widest block mb-2" style={{ color: 'var(--text-mid)' }}>
+                    性  别
+                  </label>
                   <div className="flex gap-3">
-                    {['male', 'female'].map(g => (
-                      <button key={g} onClick={() => setPatient(prev => ({ ...prev, gender: g }))}
-                        className="flex-1 py-2 rounded-lg text-sm transition-all"
+                    {[{ v: 'male', label: '男' }, { v: 'female', label: '女' }].map(g => (
+                      <button
+                        key={g.v}
+                        onClick={() => setPatient(prev => ({ ...prev, gender: g.v }))}
+                        className="flex-1 py-3 rounded-xl font-title text-sm font-semibold tracking-wider transition-all duration-300"
                         style={{
-                          background: patient.gender === g ? 'rgba(6,182,212,0.15)' : '#0D1117',
-                          border: `1px solid ${patient.gender === g ? '#06B6D4' : '#30363d'}`,
-                          color: patient.gender === g ? '#06B6D4' : '#8b949e',
-                        }}>
-                        {g === 'male' ? '男' : '女'}
-                      </button>
+                          background: patient.gender === g.v ? 'rgba(0,229,255,0.12)' : 'rgba(3,7,18,0.6)',
+                          border: `1px solid ${patient.gender === g.v ? 'rgba(0,229,255,0.45)' : 'rgba(0,229,255,0.10)'}`,
+                          color: patient.gender === g.v ? '#00E5FF' : 'var(--text-mid)',
+                          boxShadow: patient.gender === g.v ? '0 0 16px rgba(0,229,255,0.18)' : 'none',
+                        }}
+                      >{g.label}</button>
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="mt-4 pt-4" style={{ borderTop: '1px solid #21262d' }}>
-                <p className="text-xs" style={{ color: '#6e7681' }}>
+
+              <div className="mt-8 pt-5" style={{ borderTop: '1px solid rgba(0,229,255,0.06)' }}>
+                <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>
                   📄 {fileName}
                 </p>
               </div>
             </div>
           </motion.div>
 
-          {/* 右侧：检测数值 */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-            <div className="rounded-xl p-6" style={{ background: '#161b22', border: '1px solid #30363d' }}>
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-1.5 h-5 rounded-full" style={{ background: '#06B6D4' }} />
-                <h2 className="text-white font-semibold">检测数值</h2>
-                <span className="text-xs ml-1" style={{ color: '#6e7681' }}>（可编辑修正）</span>
+          {/* ── Right: Lipid Values ── */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <div className="relative bracket rounded-2xl p-8"
+              style={{
+                background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
+                border: '1px solid rgba(0,229,255,0.12)',
+              }}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: 'rgba(0,229,255,0.12)', border: '1px solid rgba(0,229,255,0.25)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" strokeWidth="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="font-title text-sm font-semibold tracking-wider" style={{ color: 'var(--text-hi)' }}>检测数值</h2>
+                  <p className="font-data text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>LIPID PROFILE · 可编辑修正</p>
+                </div>
               </div>
-              <div className="space-y-3">
-                {KEY_FIELDS.map(field => {
+
+              <div className="space-y-4">
+                {KEY_FIELDS.map((field, idx) => {
                   const val = values[field.key];
-                  const numVal = typeof val === 'number' ? val : parseFloat(val);
-                  const isCritical = !isNaN(numVal) && field.critical(numVal);
-                  const isWarning = !isNaN(numVal) && !isCritical && field.warning(numVal);
+                  const num = typeof val === 'number' ? val : parseFloat(String(val));
+                  const crit = !isNaN(num) && field.isCritical(num);
+                  const warn = !isNaN(num) && !crit && field.isWarning(num);
+                  const sc = statusColor(crit, warn);
+
                   return (
-                    <div key={field.key} className="flex items-center gap-3">
-                      <label className="text-sm w-32 flex-shrink-0" style={{ color: '#8b949e' }}>{field.label}</label>
+                    <motion.div
+                      key={field.key}
+                      className="flex items-center gap-4"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 + idx * 0.04 }}
+                    >
+                      <div className="w-28 flex-shrink-0">
+                        <span className="font-data text-xs tracking-wider" style={{ color: 'var(--text-mid)' }}>
+                          {field.label}
+                        </span>
+                      </div>
                       <div className="flex-1 relative">
                         <input
                           type="number"
                           step="0.01"
                           value={val ?? ''}
                           onChange={e => updateValue(field.key, e.target.value)}
-                          className="w-full rounded-lg px-3 py-1.5 text-sm text-right outline-none transition-colors font-mono"
+                          className="w-full rounded-xl px-4 py-2.5 font-data text-base text-right outline-none transition-all duration-300 tracking-wider"
                           style={{
-                            background: '#0D1117',
-                            border: `1px solid ${isCritical ? 'rgba(239,68,68,0.5)' : isWarning ? 'rgba(245,158,11,0.4)' : '#30363d'}`,
-                            color: isCritical ? '#f87171' : isWarning ? '#fbbf24' : '#e6edf3',
+                            background: crit ? 'rgba(255,45,85,0.06)' : warn ? 'rgba(255,184,0,0.05)' : 'rgba(3,7,18,0.6)',
+                            border: `1px solid ${crit ? sc.border : warn ? sc.border : 'rgba(0,229,255,0.10)'}`,
+                            color: crit ? sc.color : warn ? sc.color : 'var(--text-hi)',
+                            boxShadow: crit || warn ? sc.glow : 'none',
                           }}
-                          onFocus={e => { if (!isCritical && !isWarning) e.target.style.borderColor = '#06B6D4'; }}
-                          onBlur={e => { if (!isCritical && !isWarning) e.target.style.borderColor = '#30363d'; }}
+                          onFocus={e => {
+                            if (!crit && !warn) {
+                              e.target.style.borderColor = 'rgba(0,229,255,0.4)';
+                              e.target.style.boxShadow = '0 0 16px rgba(0,229,255,0.10)';
+                            }
+                          }}
+                          onBlur={e => {
+                            if (!crit && !warn) {
+                              e.target.style.borderColor = 'rgba(0,229,255,0.10)';
+                              e.target.style.boxShadow = 'none';
+                            }
+                          }}
                         />
-                        {field.unit && <span className="absolute right-8 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#6e7681' }}>{field.unit}</span>}
+                        {field.unit && (
+                          <span className="absolute right-10 top-1/2 -translate-y-1/2 font-data text-xs pointer-events-none"
+                            style={{ color: 'var(--text-dim)' }}>{field.unit}</span>
+                        )}
                       </div>
-                      {!isNaN(numVal) && <StatusBadge critical={isCritical} warning={isWarning} />}
-                    </div>
+                      {!isNaN(num) && (
+                        <div className="w-12 flex-shrink-0 text-right">
+                          <span className="font-title text-xs font-semibold px-2 py-1 rounded-md"
+                            style={{ background: sc.bg, color: sc.color, border: `1px solid ${sc.border}` }}>
+                            {sc.label}
+                          </span>
+                        </div>
+                      )}
+                    </motion.div>
                   );
                 })}
               </div>
 
-              {/* 其他指标折叠 */}
-              <div className="mt-4">
-                <button onClick={() => setShowOther(!showOther)}
-                  className="text-sm flex items-center gap-1 transition-colors"
-                  style={{ color: '#8b949e' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#e6edf3')}
-                  onMouseLeave={e => (e.currentTarget.style.color = '#8b949e')}>
-                  {showOther ? '▼' : '▶'} 其他指标（血脂等）
+              {/* Other fields collapsible */}
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowOther(!showOther)}
+                  className="font-body text-sm tracking-wider flex items-center gap-2 transition-all"
+                  style={{ color: 'var(--text-mid)' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#00E5FF')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-mid)')}
+                >
+                  <span style={{ fontSize: '10px' }}>{showOther ? '▼' : '▶'}</span>
+                  其他指标（血脂检验）
                 </button>
                 {showOther && (
-                  <div className="mt-3 space-y-2 pt-3" style={{ borderTop: '1px solid #21262d' }}>
+                  <div className="mt-4 space-y-3 pt-4" style={{ borderTop: '1px solid rgba(0,229,255,0.06)' }}>
                     {OTHER_FIELDS.map(field => (
-                      <div key={field.key} className="flex items-center gap-3">
-                        <label className="text-xs w-32 flex-shrink-0" style={{ color: '#6e7681' }}>{field.label}</label>
+                      <div key={field.key} className="flex items-center gap-4">
+                        <span className="font-data text-xs w-28 flex-shrink-0 tracking-wider" style={{ color: 'var(--text-dim)' }}>
+                          {field.label}
+                        </span>
                         <input
                           type="number" step="0.01"
                           value={values[field.key] ?? ''}
                           onChange={e => updateValue(field.key, e.target.value)}
                           placeholder="—"
-                          className="flex-1 rounded-lg px-3 py-1 text-sm text-right outline-none font-mono"
-                          style={{ background: '#0D1117', border: '1px solid #21262d', color: '#8b949e' }}
-                          onFocus={e => (e.target.style.borderColor = '#06B6D4')}
-                          onBlur={e => (e.target.style.borderColor = '#21262d')}
+                          className="flex-1 rounded-xl px-4 py-2 font-data text-sm text-right outline-none"
+                          style={{
+                            background: 'rgba(3,7,18,0.5)',
+                            border: '1px solid rgba(0,229,255,0.07)',
+                            color: 'var(--text-mid)',
+                          }}
+                          onFocus={e => (e.target.style.borderColor = 'rgba(0,229,255,0.3)')}
+                          onBlur={e => (e.target.style.borderColor = 'rgba(0,229,255,0.07)')}
                         />
-                        <span className="text-xs w-12 text-right flex-shrink-0" style={{ color: '#6e7681' }}>{field.unit}</span>
+                        <span className="font-data text-xs w-16 text-right flex-shrink-0" style={{ color: 'var(--text-dim)' }}>
+                          {field.unit}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -201,32 +345,59 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
           </motion.div>
         </div>
 
-        {/* 生成按钮 */}
+        {/* ── Generate Button ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 flex justify-center"
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="flex justify-center pb-4"
         >
           <button
             onClick={() => onGenerate(values, patient)}
             disabled={generating}
-            className="relative px-10 py-4 rounded-xl text-white font-semibold text-base transition-all"
+            className="relative overflow-hidden rounded-2xl px-16 py-5 font-title text-base font-bold tracking-widest transition-all duration-300"
             style={{
-              background: generating ? '#21262d' : 'linear-gradient(135deg, #06B6D4, #3B82F6)',
-              color: generating ? '#6e7681' : '#fff',
+              background: generating
+                ? 'rgba(9,18,32,0.8)'
+                : 'linear-gradient(135deg, rgba(0,229,255,0.15), rgba(123,47,247,0.2))',
+              border: `1px solid ${generating ? 'rgba(255,255,255,0.07)' : 'rgba(0,229,255,0.45)'}`,
+              color: generating ? 'var(--text-dim)' : '#00E5FF',
+              boxShadow: generating ? 'none' : '0 0 40px rgba(0,229,255,0.2), 0 0 80px rgba(0,229,255,0.08)',
               cursor: generating ? 'not-allowed' : 'pointer',
-              boxShadow: generating ? 'none' : '0 0 20px rgba(6,182,212,0.3)',
+              letterSpacing: '0.2em',
+              minWidth: '340px',
+            }}
+            onMouseEnter={e => {
+              if (!generating) {
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 60px rgba(0,229,255,0.35), 0 0 100px rgba(0,229,255,0.12)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,255,0.65)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!generating) {
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 40px rgba(0,229,255,0.2), 0 0 80px rgba(0,229,255,0.08)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,255,0.45)';
+              }
             }}
           >
+            {/* Animated scan beam on button */}
+            {!generating && (
+              <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+                <div className="absolute inset-x-0 h-full scan-beam opacity-30"
+                  style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,229,255,0.15), transparent)' }} />
+              </div>
+            )}
             {generating ? (
-              <span className="flex items-center gap-3">
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="30" strokeDashoffset="10" />
+              <span className="flex items-center gap-4">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" style={{ animation: 'rotate-slow 1s linear infinite' }}>
+                  <circle cx="12" cy="12" r="10" stroke="rgba(0,229,255,0.3)" strokeWidth="2" />
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 AI 配方生成中...
               </span>
-            ) : '生成个性化配方 →'}
+            ) : (
+              '生成个性化配方  →'
+            )}
           </button>
         </motion.div>
       </div>

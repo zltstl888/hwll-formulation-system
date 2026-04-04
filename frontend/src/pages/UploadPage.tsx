@@ -8,6 +8,8 @@ interface Props {
   onParsed: (data: LipidValues, file: File) => void;
 }
 
+const STEPS = ['上传报告', '确认数值', '生成配方'];
+
 export default function UploadPage({ onParsed }: Props) {
   const [status, setStatus] = useState<'idle' | 'parsing' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -34,115 +36,233 @@ export default function UploadPage({ onParsed }: Props) {
   });
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#0D1117' }}>
-      {/* 顶部 Logo + 标题 */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-12"
-      >
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #06B6D4, #3B82F6)' }}>
-            <span className="text-white text-lg font-bold">H</span>
-          </div>
-          <span className="text-white text-xl font-semibold tracking-wide">HWLL</span>
-        </div>
-        <h1 className="text-3xl font-bold text-white mb-2">智能配方系统</h1>
-        <p style={{ color: '#8b949e' }} className="text-sm">脂肪谱精准解析 · 循证配方生成</p>
-      </motion.div>
+    <div className="grid-bg min-h-screen relative flex flex-col items-center justify-center px-6 py-16 overflow-hidden">
+      {/* Ambient orb top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+      {/* Ambient orb bottom-right */}
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(123,47,247,0.07) 0%, transparent 70%)', filter: 'blur(50px)' }} />
 
-      {/* 上传区 */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="w-full max-w-lg"
-      >
-        <div
-          {...getRootProps()}
-          className="relative rounded-2xl p-10 text-center cursor-pointer transition-all duration-300"
-          style={{
-            background: isDragActive ? 'rgba(6,182,212,0.08)' : 'rgba(28,33,41,0.8)',
-            border: `2px dashed ${isDragActive ? '#06B6D4' : status === 'error' ? '#ef4444' : '#30363d'}`,
-            boxShadow: isDragActive ? '0 0 30px rgba(6,182,212,0.15)' : 'none',
-          }}
+      <div className="relative z-10 w-full max-w-2xl">
+        {/* ── Logo + System Name ── */}
+        <motion.div
+          initial={{ opacity: 0, y: -32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mb-16"
         >
-          <input {...getInputProps()} />
+          {/* Logo mark */}
+          <div className="flex items-center justify-center mb-8">
+            <div className="relative">
+              {/* outer ring */}
+              <div className="w-20 h-20 rounded-full border border-cyan-400/20 absolute inset-0 pulse-ring"
+                style={{ borderColor: 'rgba(0,229,255,0.2)' }} />
+              {/* inner icon */}
+              <div className="w-20 h-20 rounded-full flex items-center justify-center relative"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0,229,255,0.15), rgba(123,47,247,0.2))',
+                  border: '1px solid rgba(0,229,255,0.35)',
+                  boxShadow: '0 0 30px rgba(0,229,255,0.2), inset 0 0 20px rgba(0,229,255,0.05)',
+                }}>
+                <span className="font-title text-2xl font-bold flicker" style={{ color: '#00E5FF' }}>H</span>
+              </div>
+            </div>
+          </div>
 
+          <p className="font-body text-xs tracking-[0.4em] uppercase mb-3"
+            style={{ color: 'var(--text-mid)' }}>
+            Hopkins Washington Life Medicine Lab
+          </p>
+          <h1 className="font-title text-5xl font-black tracking-wider mb-3 text-glow-cyan"
+            style={{ color: '#00E5FF', lineHeight: 1.1 }}>
+            HWLL
+          </h1>
+          <h2 className="font-body text-2xl font-semibold mb-4 tracking-widest"
+            style={{ color: 'var(--text-hi)', letterSpacing: '0.25em' }}>
+            智能配方系统
+          </h2>
+          <p className="font-body text-base tracking-widest"
+            style={{ color: 'var(--text-mid)' }}>
+            脂肪谱精准解析&nbsp;&nbsp;·&nbsp;&nbsp;循证 AI 配方生成
+          </p>
+        </motion.div>
+
+        {/* ── Upload Zone ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mb-12"
+        >
           <AnimatePresence mode="wait">
             {status === 'parsing' ? (
-              <motion.div key="parsing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-4">
-                <div className="flex justify-center mb-4">
-                  <div className="relative w-16 h-16">
-                    <div className="absolute inset-0 rounded-full border-2 border-cyan-400 opacity-20 animate-ping" />
-                    <div className="absolute inset-2 rounded-full border-2 border-cyan-400 animate-spin border-t-transparent" />
-                    <div className="absolute inset-4 rounded-full" style={{ background: 'linear-gradient(135deg, #06B6D4, #3B82F6)', opacity: 0.6 }} />
+              <motion.div
+                key="parsing"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="relative bracket overflow-hidden rounded-2xl py-20 px-8 text-center"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0,229,255,0.05), rgba(123,47,247,0.08))',
+                  border: '1px solid rgba(0,229,255,0.35)',
+                  boxShadow: '0 0 40px rgba(0,229,255,0.15)',
+                }}
+              >
+                {/* Scan beam */}
+                <div className="absolute inset-x-0 h-0.5 scan-beam"
+                  style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.8), transparent)' }} />
+
+                <div className="flex justify-center mb-8">
+                  <div className="relative w-24 h-24">
+                    <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20"
+                      style={{ borderColor: 'rgba(0,229,255,0.2)', animation: 'pulse-ring 1.5s ease-in-out infinite' }} />
+                    <div className="absolute inset-3 rounded-full border-2 border-t-transparent"
+                      style={{ borderColor: '#00E5FF', animation: 'rotate-slow 1.5s linear infinite' }} />
+                    <div className="absolute inset-7 rounded-full"
+                      style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.6), rgba(123,47,247,0.4))' }} />
                   </div>
                 </div>
-                <p className="text-cyan-400 font-medium">正在解析脂肪酸数值...</p>
-                <p style={{ color: '#8b949e' }} className="text-sm mt-1">通常需要 3-5 秒</p>
+
+                <p className="font-title text-lg font-semibold mb-3 text-glow-cyan" style={{ color: '#00E5FF' }}>
+                  AI 解析中
+                </p>
+                <p className="font-data text-sm tracking-widest mb-1" style={{ color: 'var(--text-mid)' }}>
+                  EXTRACTING FATTY ACID PROFILE...
+                </p>
+                <p className="font-body text-sm" style={{ color: 'var(--text-dim)' }}>
+                  通常需要 3 — 5 秒
+                </p>
               </motion.div>
             ) : (
-              <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-4">
-                <div className="flex justify-center mb-5">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)' }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#06B6D4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="17 8 12 3 7 8" />
-                      <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
+              <motion.div
+                key="idle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div
+                  {...getRootProps()}
+                  className="relative bracket overflow-hidden rounded-2xl py-20 px-8 text-center cursor-pointer transition-all duration-500"
+                  style={{
+                    background: isDragActive
+                      ? 'linear-gradient(135deg, rgba(0,229,255,0.10), rgba(123,47,247,0.12))'
+                      : status === 'error'
+                        ? 'rgba(255,45,85,0.04)'
+                        : 'rgba(9,18,32,0.8)',
+                    border: `1px solid ${
+                      isDragActive ? 'rgba(0,229,255,0.6)'
+                      : status === 'error' ? 'rgba(255,45,85,0.5)'
+                      : 'rgba(0,229,255,0.14)'
+                    }`,
+                    boxShadow: isDragActive
+                      ? '0 0 50px rgba(0,229,255,0.20), inset 0 0 30px rgba(0,229,255,0.05)'
+                      : '0 4px 40px rgba(0,0,0,0.4)',
+                  }}
+                >
+                  <input {...getInputProps()} />
+
+                  {/* Top scan beam on drag */}
+                  {isDragActive && (
+                    <div className="absolute inset-x-0 h-0.5 scan-beam"
+                      style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.9), transparent)' }} />
+                  )}
+
+                  {/* Upload icon */}
+                  <div className="flex justify-center mb-8">
+                    <div className="relative float">
+                      <div className="w-24 h-24 rounded-full flex items-center justify-center"
+                        style={{
+                          background: isDragActive ? 'rgba(0,229,255,0.15)' : 'rgba(0,229,255,0.07)',
+                          border: `1px solid ${isDragActive ? 'rgba(0,229,255,0.5)' : 'rgba(0,229,255,0.2)'}`,
+                          boxShadow: isDragActive ? '0 0 30px rgba(0,229,255,0.25)' : 'none',
+                          transition: 'all 0.4s ease',
+                        }}>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                          stroke={isDragActive ? '#00E5FF' : 'rgba(0,229,255,0.6)'}
+                          strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="17 8 12 3 7 8" />
+                          <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
+
+                  <p className="font-title text-xl font-semibold mb-4"
+                    style={{ color: isDragActive ? '#00E5FF' : 'var(--text-hi)', letterSpacing: '0.05em' }}>
+                    {isDragActive ? '松开即可上传' : '上传检测报告'}
+                  </p>
+                  <p className="font-body text-base mb-2" style={{ color: 'var(--text-mid)' }}>
+                    拖拽文件到此处，或点击选择
+                  </p>
+                  <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>
+                    PDF · 脂谱生物科技标准格式
+                  </p>
                 </div>
-                <p className="text-white font-medium text-base mb-1">
-                  {isDragActive ? '松开即可上传' : '拖拽或点击上传'}
-                </p>
-                <p style={{ color: '#8b949e' }} className="text-sm">脂肪谱检测报告 PDF</p>
-                <p style={{ color: '#6e7681' }} className="text-xs mt-3">支持脂谱生物科技标准格式</p>
+
+                {/* Error */}
+                <AnimatePresence>
+                  {status === 'error' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="mt-4 px-5 py-4 rounded-xl text-sm flex items-center justify-between"
+                      style={{
+                        background: 'rgba(255,45,85,0.08)',
+                        border: '1px solid rgba(255,45,85,0.35)',
+                        color: '#FF7096',
+                      }}
+                    >
+                      <span>⚠&ensp;{errorMsg}</span>
+                      <button
+                        className="font-title text-xs tracking-wider px-3 py-1 rounded-lg transition-all"
+                        style={{ color: '#FF2D55', border: '1px solid rgba(255,45,85,0.4)' }}
+                        onClick={e => { e.stopPropagation(); setStatus('idle'); }}
+                      >重试</button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
 
-        {/* 错误提示 */}
-        <AnimatePresence>
-          {status === 'error' && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mt-3 px-4 py-3 rounded-lg text-sm"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5' }}
-            >
-              ⚠ {errorMsg}
-              <button
-                className="ml-3 text-red-400 underline text-xs"
-                onClick={(e) => { e.stopPropagation(); setStatus('idle'); }}
-              >重试</button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* 步骤指引 */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="flex gap-8 mt-12"
-        style={{ color: '#6e7681' }}
-      >
-        {['上传 PDF', '确认数值', '查看配方'].map((step, i) => (
-          <div key={i} className="flex items-center gap-2 text-sm">
-            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-              style={{ background: i === 0 ? '#06B6D4' : '#21262d', color: i === 0 ? '#fff' : '#6e7681' }}>
-              {i + 1}
-            </span>
-            <span style={{ color: i === 0 ? '#e6edf3' : '#6e7681' }}>{step}</span>
-            {i < 2 && <span style={{ color: '#30363d' }}>→</span>}
-          </div>
-        ))}
-      </motion.div>
+        {/* ── Step Indicator ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
+          className="flex items-center justify-center gap-0"
+        >
+          {STEPS.map((step, i) => (
+            <div key={i} className="flex items-center">
+              <div className="flex flex-col items-center gap-2.5">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center font-title text-sm font-bold transition-all"
+                  style={{
+                    background: i === 0 ? 'rgba(0,229,255,0.15)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${i === 0 ? 'rgba(0,229,255,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                    color: i === 0 ? '#00E5FF' : 'var(--text-dim)',
+                    boxShadow: i === 0 ? '0 0 16px rgba(0,229,255,0.25)' : 'none',
+                  }}
+                >
+                  {i + 1}
+                </div>
+                <span className="font-body text-xs tracking-wider"
+                  style={{ color: i === 0 ? 'var(--text-hi)' : 'var(--text-dim)', letterSpacing: '0.12em' }}>
+                  {step}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div className="w-20 h-px mx-3 mb-6"
+                  style={{ background: 'linear-gradient(to right, rgba(0,229,255,0.3), rgba(0,229,255,0.06))' }} />
+              )}
+            </div>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 }
