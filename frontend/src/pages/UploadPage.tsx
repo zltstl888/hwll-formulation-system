@@ -38,8 +38,8 @@ export default function UploadPage({ onParsed }: Props) {
 
   return (
     <div
-      className="grid-bg min-h-screen relative flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden"
-      style={{ paddingTop: '3vh', paddingBottom: '3vh' }}
+      className="grid-bg min-h-screen relative flex flex-col items-center justify-center overflow-hidden"
+      style={{ padding: '3vh max(24px, 5vw)' }}
     >
       {/* Ambient glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"

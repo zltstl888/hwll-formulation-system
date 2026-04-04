@@ -32,7 +32,8 @@ export default function ReportPage({ result, onRestart }: Props) {
   const condProducts = formulation.products.filter(p => p.category === 'conditional');
 
   return (
-    <div className="grid-bg min-h-screen relative px-5 sm:px-10 py-8 sm:py-10 overflow-x-hidden">
+    <div className="grid-bg min-h-screen relative overflow-x-hidden"
+      style={{ padding: '2rem max(24px, 5vw)' }}>
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] pointer-events-none"
         style={{ background: `radial-gradient(ellipse, rgba(0,229,255,0.05) 0%, transparent 70%)`, filter: 'blur(50px)' }} />

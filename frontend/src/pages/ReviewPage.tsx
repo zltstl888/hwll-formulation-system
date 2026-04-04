@@ -51,7 +51,8 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
   };
 
   return (
-    <div className="grid-bg min-h-screen relative px-5 sm:px-10 py-8 sm:py-10 overflow-x-hidden">
+    <div className="grid-bg min-h-screen relative overflow-x-hidden"
+      style={{ padding: '2rem max(24px, 5vw)' }}>
       {/* Ambient */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[250px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse, rgba(123,47,247,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
@@ -126,8 +127,9 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <div className="relative bracket rounded-2xl p-6 sm:p-8 h-full"
+            <div className="relative bracket rounded-2xl h-full"
               style={{
+                padding: 'max(24px, 4vw)',
                 background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
                 border: '1px solid rgba(0,229,255,0.12)',
               }}>
@@ -217,8 +219,9 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <div className="relative bracket rounded-2xl p-6 sm:p-8"
+            <div className="relative bracket rounded-2xl"
               style={{
+                padding: 'max(24px, 4vw)',
                 background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.8))',
                 border: '1px solid rgba(0,229,255,0.12)',
               }}>
@@ -251,7 +254,7 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                       transition={{ delay: 0.2 + idx * 0.04 }}
                     >
                       {/* 标签行 */}
-                      <div className="flex items-center justify-between mb-1.5 px-1">
+                      <div className="flex items-center justify-between mb-2 px-2">
                         <span className="font-body text-sm tracking-wider" style={{ color: 'var(--text-mid)' }}>
                           {field.label}{field.unit ? `（${field.unit}）` : ''}
                         </span>
