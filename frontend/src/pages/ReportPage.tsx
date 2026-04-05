@@ -100,7 +100,7 @@ export default function ReportPage({ result, onRestart }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-10 sm:p-10 sm:pt-14">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-14 sm:p-10 sm:pt-16">
             {/* Gauge */}
             <div className="flex-shrink-0">
               <RiskGauge
@@ -160,20 +160,46 @@ export default function ReportPage({ result, onRestart }: Props) {
           </div>
         </motion.div>
 
-        {/* ── Tab Navigation ── */}
+        {/* ── Five-Dimension Overview ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-5 gap-2 sm:gap-3 mb-6"
+        >
+          {[
+            { icon: '💊', label: '营养补充', sub: `${formulation.products.length} 个产品`, tab: '产品方案' as const },
+            { icon: '🥗', label: '膳食干预', sub: formulation.diet_intervention.pattern, tab: '膳食干预' as const },
+            { icon: '🏃', label: '运动处方', sub: formulation.exercise_prescription.frequency, tab: '运动处方' as const },
+            { icon: '🌙', label: '生活方式', sub: `${formulation.lifestyle_intervention.key_points.length} 项建议`, tab: '生活方式' as const },
+            { icon: '📋', label: '随访计划', sub: `${formulation.followup_plan.review_weeks} 周复查`, tab: '随访计划' as const },
+          ].map(dim => (
+            <button
+              key={dim.label}
+              onClick={() => setActiveTab(dim.tab)}
+              className="rounded-xl p-2.5 sm:p-3 text-center transition-all duration-300"
+              style={{
+                background: activeTab === dim.tab ? 'rgba(0,229,255,0.08)' : 'rgba(9,18,32,0.7)',
+                border: `1px solid ${activeTab === dim.tab ? 'rgba(0,229,255,0.25)' : 'rgba(0,229,255,0.06)'}`,
+              }}
+            >
+              <div style={{ fontSize: 20, marginBottom: 4 }}>{dim.icon}</div>
+              <p className="font-body text-xs sm:text-sm font-semibold" style={{ color: activeTab === dim.tab ? '#00E5FF' : 'var(--text-hi)', lineHeight: 1.3 }}>
+                {dim.label}
+              </p>
+              <p className="font-data hidden sm:block mt-1" style={{ fontSize: 10, color: 'var(--text-dim)', lineHeight: 1.2 }}>
+                {dim.sub}
+              </p>
+            </button>
+          ))}
+        </motion.div>
+
+        {/* ── Tab Navigation (detailed) ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {/* Section label */}
-          <div className="flex items-center gap-3 mb-4 no-print">
-            <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.18))' }} />
-            <span className="font-title text-xs tracking-[0.22em]" style={{ color: 'var(--text-dim)' }}>
-              干预方案详情
-            </span>
-            <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, transparent, rgba(0,229,255,0.18))' }} />
-          </div>
 
           <div className="flex gap-1 mb-6 p-1.5 rounded-2xl no-print overflow-x-auto"
             style={{ background: 'rgba(6,13,26,0.9)', border: '1px solid rgba(0,229,255,0.08)', WebkitOverflowScrolling: 'touch' }}>
@@ -345,15 +371,26 @@ export default function ReportPage({ result, onRestart }: Props) {
           </AnimatePresence>
         </motion.div>
 
-        {/* Footer */}
-        <div className="mt-14 text-center no-print">
+        {/* Medical Disclaimer + Footer */}
+        <div className="mt-14 no-print">
           <div className="h-px mb-6" style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.15), transparent)' }} />
-          <p className="font-body text-sm mb-1" style={{ color: 'var(--text-dim)', lineHeight: 1.8 }}>
-            本方案基于循证医学算法生成，仅供医疗专业人员参考，不替代临床诊疗判断
-          </p>
-          <p className="font-data text-xs tracking-widest" style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}>
-            HWLL INTELLIGENT FORMULATION SYSTEM · Hopkins Washington Life Medicine Lab · 2026
-          </p>
+
+          {/* Disclaimer per algorithm guide 6.2 */}
+          <div className="rounded-xl p-5 mb-6"
+            style={{ background: 'rgba(255,184,0,0.04)', border: '1px solid rgba(255,184,0,0.15)' }}>
+            <p className="font-data text-xs tracking-widest mb-2" style={{ color: 'rgba(255,184,0,0.6)', letterSpacing: '0.15em' }}>
+              MEDICAL DISCLAIMER
+            </p>
+            <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-dim)', lineHeight: 1.8 }}>
+              本算法生成的干预配方为营养干预建议，基于特殊膳食食品（运动营养食品），不构成医疗诊断或处方药方案，不能替代专业医疗机构的诊断和治疗。TYMB® 系列产品均为特殊膳食食品，执行 GB 24154《运动营养食品通则》。所有推荐剂量及干预方案，患者在执行前建议与主治医生沟通确认，尤其是正在接受药物治疗的患者。
+            </p>
+          </div>
+
+          <div className="text-center">
+            <p className="font-data text-xs tracking-widest" style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}>
+              HWLL INTELLIGENT FORMULATION SYSTEM · Hopkins Washington Life Medicine Lab · 2026
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -400,9 +437,22 @@ function ProductCard({ product, palette, expanded, onToggle }: { product: any; p
       </div>
 
       {/* Indication */}
-      <p className="font-body leading-relaxed mb-5" style={{ color: 'var(--text-mid)', lineHeight: 1.8, fontSize: 14 }}>
+      <p className="font-body leading-relaxed mb-4" style={{ color: 'var(--text-mid)', lineHeight: 1.8, fontSize: 14 }}>
         {product.indication}
       </p>
+
+      {/* Mechanism (collapsible per algorithm guide 7.3) */}
+      {product.mechanism && (
+        <div className="rounded-lg p-3 mb-4"
+          style={{ background: 'rgba(3,7,18,0.5)', border: `1px solid ${palette.color}12` }}>
+          <p className="font-data text-xs tracking-wider mb-1.5" style={{ color: palette.color, letterSpacing: '0.12em' }}>
+            作用机制
+          </p>
+          <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>
+            {product.mechanism}
+          </p>
+        </div>
+      )}
 
       {/* Evidence tags */}
       <div className="flex flex-wrap gap-2 mb-4">

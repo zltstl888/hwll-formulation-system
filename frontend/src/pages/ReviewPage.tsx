@@ -19,6 +19,94 @@ const KEY_FIELDS = [
   { key: 'omega6_omega3_ratio',label: 'ω6 : ω3',       unit: '',  isCritical: (v: number) => v > 20, isWarning: (v: number) => v > 10 },
 ];
 
+/* Range bar configs for visual indicators below each key field input */
+const RANGE_CONFIGS: Record<string, { min: number; max: number; refValue: number; refLabel: string; zones: { end: number; color: string }[] }> = {
+  aa_epa_ratio: {
+    min: 0, max: 40, refValue: 3, refLabel: '≤3',
+    zones: [
+      { end: 3, color: 'rgba(0,255,148,0.14)' },
+      { end: 10, color: 'rgba(255,184,0,0.14)' },
+      { end: 30, color: 'rgba(255,140,0,0.14)' },
+      { end: 40, color: 'rgba(255,45,85,0.14)' },
+    ],
+  },
+  omega3_index: {
+    min: 0, max: 15, refValue: 8, refLabel: '≥8%',
+    zones: [
+      { end: 4, color: 'rgba(255,45,85,0.14)' },
+      { end: 7, color: 'rgba(255,184,0,0.14)' },
+      { end: 10, color: 'rgba(0,255,148,0.14)' },
+      { end: 15, color: 'rgba(0,255,148,0.08)' },
+    ],
+  },
+  epa: {
+    min: 0, max: 5, refValue: 1.5, refLabel: '≥1.5%',
+    zones: [
+      { end: 0.5, color: 'rgba(255,45,85,0.14)' },
+      { end: 1.5, color: 'rgba(255,184,0,0.14)' },
+      { end: 3, color: 'rgba(0,255,148,0.14)' },
+      { end: 5, color: 'rgba(0,255,148,0.08)' },
+    ],
+  },
+  dha: {
+    min: 0, max: 10, refValue: 3, refLabel: '≥3%',
+    zones: [
+      { end: 3, color: 'rgba(255,184,0,0.14)' },
+      { end: 5, color: 'rgba(0,255,148,0.14)' },
+      { end: 10, color: 'rgba(0,255,148,0.08)' },
+    ],
+  },
+  aa: {
+    min: 0, max: 20, refValue: 10, refLabel: '≤10%',
+    zones: [
+      { end: 10, color: 'rgba(0,255,148,0.14)' },
+      { end: 15, color: 'rgba(255,184,0,0.14)' },
+      { end: 20, color: 'rgba(255,45,85,0.14)' },
+    ],
+  },
+  omega6_omega3_ratio: {
+    min: 0, max: 30, refValue: 4, refLabel: '≤4',
+    zones: [
+      { end: 4, color: 'rgba(0,255,148,0.14)' },
+      { end: 10, color: 'rgba(255,184,0,0.14)' },
+      { end: 20, color: 'rgba(255,140,0,0.14)' },
+      { end: 30, color: 'rgba(255,45,85,0.14)' },
+    ],
+  },
+};
+
+function ValueRangeBar({ value, fieldKey, barColor }: { value: number; fieldKey: string; barColor: string }) {
+  const range = RANGE_CONFIGS[fieldKey];
+  if (!range) return null;
+  const fillPct = Math.max(0, Math.min(((value - range.min) / (range.max - range.min)) * 100, 100));
+  const refPct = ((range.refValue - range.min) / (range.max - range.min)) * 100;
+
+  let prevPct = 0;
+  const stops: string[] = [];
+  for (const zone of range.zones) {
+    const pct = ((zone.end - range.min) / (range.max - range.min)) * 100;
+    stops.push(`${zone.color} ${prevPct}%`, `${zone.color} ${pct}%`);
+    prevPct = pct;
+  }
+
+  return (
+    <div className="mt-2 px-1">
+      <div className="relative" style={{ height: 6 }}>
+        <div className="absolute inset-0 rounded-full overflow-hidden"
+          style={{ background: `linear-gradient(to right, ${stops.join(', ')})` }} />
+        <div className="absolute top-0 left-0 h-full rounded-full"
+          style={{ width: `${fillPct}%`, background: barColor, boxShadow: `0 0 6px ${barColor}60` }} />
+        <div className="absolute" style={{ left: `${refPct}%`, top: -3, bottom: -3, width: 1.5, background: 'rgba(255,255,255,0.4)', borderRadius: 1 }} />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="font-data" style={{ fontSize: 9, color: 'var(--text-dim)' }}>{range.min}</span>
+        <span className="font-data" style={{ fontSize: 9, color: 'var(--text-dim)' }}>正常{range.refLabel}</span>
+        <span className="font-data" style={{ fontSize: 9, color: 'var(--text-dim)' }}>{range.max}</span>
+      </div>
+    </div>
+  );
+}
+
 const OTHER_FIELDS = [
   { key: 'omega3_total',     label: 'Omega-3 总量', unit: '%'      },
   { key: 'omega6_total',     label: 'Omega-6 总量', unit: '%'      },
@@ -313,6 +401,10 @@ export default function ReviewPage({ lipidValues, fileName, onGenerate, onBack, 
                           }
                         }}
                       />
+                      {/* Range bar */}
+                      {!isNaN(num) && RANGE_CONFIGS[field.key] && (
+                        <ValueRangeBar value={num} fieldKey={field.key} barColor={sc.color} />
+                      )}
                     </motion.div>
                   );
                 })}
