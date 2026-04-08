@@ -22,7 +22,7 @@ const PARSE_STAGES = [
   { pct: 98,  text: '服务器首次启动中，请稍候...' },
 ];
 const STAGE_TIMES = [800, 2200, 4000, 6000, 8000, 15000, 30000]; // ms thresholds
-const MIN_PARSE_MS = 3000;
+const MIN_PARSE_MS = 5500;
 
 function useParseProgress(isParsing: boolean) {
   const [progress, setProgress] = useState(0);

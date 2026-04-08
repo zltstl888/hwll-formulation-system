@@ -117,15 +117,15 @@ export default function ReportPage({ result, onRestart }: Props) {
             boxShadow: '0 4px 60px rgba(0,0,0,0.5)',
           }}
         >
-          {/* Top label */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-px">
-            <div className="px-6 py-1.5 rounded-b-xl font-data text-xs tracking-widest"
-              style={{ background: 'rgba(0,229,255,0.10)', border: '1px solid rgba(0,229,255,0.2)', borderTop: 'none', color: 'rgba(0,229,255,0.7)' }}>
+          {/* Top label — inside card flow to avoid overlap on mobile */}
+          <div className="flex justify-center pt-4 sm:pt-5">
+            <div className="px-6 py-1.5 rounded-full font-data text-xs tracking-widest"
+              style={{ background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.15)', color: 'rgba(0,229,255,0.7)' }}>
               FORMULATION REPORT · {new Date(result.generated_at).toLocaleDateString('zh-CN')}
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-16 sm:p-10 sm:pt-20">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-14 sm:p-10 sm:pt-16">
             {/* Gauge */}
             <div className="flex-shrink-0">
               <RiskGauge

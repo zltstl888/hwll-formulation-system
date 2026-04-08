@@ -286,12 +286,23 @@ export function parseLipidText(text: string): ParsedLipidReport {
       result.dietary_recommendations.push(line);
     } else if (result.dietary_recommendations.length > 0 && line.length > 0
       && !/^(温馨提示|此检验|如您对|不能仅凭|检测人|审核人|脂谱生物|Omega|精准|Fatty|Basic)/.test(line)
+      && !/(检测人|审核人|脂谱生物|FAST|CONVENIENT|WIDESPREAD|电话:|电子邮箱:|公司地址:|omegabandz)/.test(line)
       && !/^脂肪酸组/.test(line) && !/^比率/.test(line)
       && !/^[\d.]+%/.test(line) && !/^综合营养建议/.test(line)) {
       const lastIdx = result.dietary_recommendations.length - 1;
       result.dietary_recommendations[lastIdx] += line;
     }
   }
+
+  // 后处理：截断混入了PDF页脚内容的建议条目
+  const FOOTER_MARKERS = /检测人[：:]|审核人[：:]|脂谱生物|FAST方便|CONVENIENT|WIDESPREAD|omegabandz|公司地址|电子邮箱|400-\d{4}/;
+  result.dietary_recommendations = result.dietary_recommendations.map(rec => {
+    const m = rec.match(FOOTER_MARKERS);
+    if (m && m.index != null && m.index > 0) {
+      return rec.substring(0, m.index).replace(/[。，、\s]+$/, '。');
+    }
+    return rec;
+  }).filter(rec => rec.length > 2);
 
   // 解析置信度评估
   result.parse_confidence = Math.min(1, successCount / totalExpected);
