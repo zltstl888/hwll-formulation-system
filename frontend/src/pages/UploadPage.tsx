@@ -12,14 +12,16 @@ const STEPS = ['上传报告', '确认数值', '生成配方'];
 const LOGO_SRC = `${import.meta.env.BASE_URL}hwll-logo.png`;
 
 const PARSE_STAGES = [
-  { pct: 15,  text: '正在读取 PDF 文档...' },
-  { pct: 35,  text: '识别脂肪酸指标...' },
-  { pct: 60,  text: '解析检测数值与状态...' },
-  { pct: 85,  text: '核对参考区间...' },
-  { pct: 100, text: '准备分析报告...' },
+  { pct: 12,  text: '正在读取 PDF 文档...' },
+  { pct: 28,  text: '识别脂肪酸指标...' },
+  { pct: 48,  text: '解析检测数值与状态...' },
+  { pct: 68,  text: '核对参考区间...' },
+  { pct: 88,  text: '准备分析报告...' },
+  { pct: 95,  text: '等待服务器响应...' },
+  { pct: 98,  text: '服务器首次启动中，请稍候...' },
 ];
-const STAGE_TIMES = [800, 2000, 3500, 4800, 5500]; // ms thresholds
-const MIN_PARSE_MS = 5500;
+const STAGE_TIMES = [800, 2200, 4000, 6000, 8000, 15000, 30000]; // ms thresholds
+const MIN_PARSE_MS = 3000;
 
 function useParseProgress(isParsing: boolean) {
   const [progress, setProgress] = useState(0);
@@ -31,6 +33,7 @@ function useParseProgress(isParsing: boolean) {
 
     const start = performance.now();
     setStageText(PARSE_STAGES[0].text);
+    const lastStageTime = STAGE_TIMES[STAGE_TIMES.length - 1];
 
     function tick(now: number) {
       const elapsed = now - start;
@@ -47,17 +50,19 @@ function useParseProgress(isParsing: boolean) {
       const segElapsed = Math.min(elapsed - prevTime, segDuration);
       const segProgress = segElapsed / segDuration;
       const eased = 1 - Math.pow(1 - segProgress, 2);
-      const pct = prevPct + (stage.pct - prevPct) * eased;
+      let pct = prevPct + (stage.pct - prevPct) * eased;
 
-      setProgress(Math.min(pct, 100));
-      setStageText(stage.text);
-
-      if (elapsed < MIN_PARSE_MS) {
-        rafRef.current = requestAnimationFrame(tick);
+      // Past last stage: creep slowly toward 99%, never reach 100%
+      if (elapsed >= lastStageTime) {
+        const extra = (elapsed - lastStageTime) / 60000; // 0→1 over 60s
+        pct = 98 + Math.min(extra, 0.99);
+        setStageText('服务器首次启动中，请稍候...');
       } else {
-        setProgress(100);
-        setStageText(PARSE_STAGES[PARSE_STAGES.length - 1].text);
+        setStageText(stage.text);
       }
+
+      setProgress(Math.min(pct, 99));
+      rafRef.current = requestAnimationFrame(tick);
     }
 
     rafRef.current = requestAnimationFrame(tick);
