@@ -26,12 +26,12 @@ function productPalette(idx: number, conditional: boolean) {
 
 // ── 处方盒数计算 ──
 const PRODUCT_PACKAGING: Record<string, { units_per_box: number; unit: string }> = {
-  epa_fish_oil:       { units_per_box: 60, unit: '粒' },
-  glutathione_multi:  { units_per_box: 60, unit: '粒' },
-  seven_probiotics:   { units_per_box: 30, unit: '袋' },
-  natto_red_yeast:    { units_per_box: 30, unit: '袋' },
-  peptide_nutrients:  { units_per_box: 15, unit: '袋' },
-  shuyan_ning:        { units_per_box: 30, unit: '袋' },
+  epa_fish_oil:       { units_per_box: 60, unit: '粒' },   // 850mg×60粒/瓶 ¥398
+  glutathione_multi:  { units_per_box: 45, unit: '粒' },   // 850mg×45粒/瓶 ¥298
+  seven_probiotics:   { units_per_box: 20, unit: '袋' },   // 3g×20袋/盒   ¥238
+  natto_red_yeast:    { units_per_box: 20, unit: '袋' },   // 3g×20袋/盒   ¥398
+  peptide_nutrients:  { units_per_box: 20, unit: '袋' },   // 20g×20袋/罐  ¥398
+  shuyan_ning:        { units_per_box: 20, unit: '袋' },   // 1g×20袋/盒   ¥298
 };
 
 function parseDailyUnits(dose: string): number {
