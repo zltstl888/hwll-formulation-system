@@ -125,7 +125,7 @@ export default function ReportPage({ result, onRestart }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-14 sm:p-10 sm:pt-16">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start gap-6 sm:gap-10 p-6 pt-16 sm:p-10 sm:pt-20">
             {/* Gauge */}
             <div className="flex-shrink-0">
               <RiskGauge

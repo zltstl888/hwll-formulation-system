@@ -264,11 +264,11 @@ function buildDietPlan(level: RiskLevel, dietaryRecommendations: string[] = []):
   // 优先使用检测报告中的精准营养建议原文（合规要求：不发散不创新）
   if (dietaryRecommendations.length > 0) {
     return {
-      pattern: '精准营养建议（基于脂肪谱检测报告）',
+      pattern: '精准营养建议（基于检测报告数据）',
       key_points: dietaryRecommendations,
       foods_to_increase: [],
       foods_to_reduce: [],
-      evidence: '以上建议基于患者个体脂肪酸谱检测数据精准生成',
+      evidence: '以上建议基于患者个体检测数据精准生成',
     };
   }
 
