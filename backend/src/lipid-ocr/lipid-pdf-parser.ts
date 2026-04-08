@@ -114,12 +114,13 @@ function parseDate(raw: string): string | null {
  * 支持 pdftotext 提取的文本格式（包含非标准Unicode字符）
  */
 export function parseLipidText(text: string): ParsedLipidReport {
-  // 统一全角字符和特殊连字符
+  // Unicode NFKC 标准化：将康熙部首(⼈→人、⽇→日等)统一为标准CJK字符
+  text = text.normalize('NFKC');
+  // CJK部首补充字符 NFKC 不处理，需手动替换
   text = text
-    .replace(/⼆/g, '二').replace(/⼗/g, '十').replace(/⼋/g, '八')
-    .replace(/⼀/g, '一').replace(/⾼/g, '高').replace(/⻥/g, '鱼')
-    .replace(/⻓/g, '长').replace(/⽔/g, '水').replace(/⾁/g, '肉')
-    .replace(/⻣/g, '骨').replace(/⾷/g, '食').replace(/⻝/g, '食');
+    .replace(/⻥/g, '鱼').replace(/⻓/g, '长').replace(/⻔/g, '门')
+    .replace(/⻩/g, '黄').replace(/⻝/g, '食').replace(/⻣/g, '骨')
+    .replace(/⻘/g, '青');
 
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
