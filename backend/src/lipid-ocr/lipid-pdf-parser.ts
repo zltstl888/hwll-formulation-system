@@ -296,7 +296,7 @@ export function parseLipidText(text: string): ParsedLipidReport {
   }
 
   // 后处理：截断混入了PDF页脚内容的建议条目（检测人、审核人、公司信息等）
-  const FOOTER_MARKERS = /检测人[：:\s]*审核人|检测人[：:\s]*生皮人|检测人[：:]|审核人[：:]|生皮人[：:]|快速\s*FAST|脂谱生物|脂谱⽣物|有限公司|FAST|CONVENIENT|WIDESPREAD|omegabandz|公司地址|电子邮箱|电话[:：]?\s*400/;
+  const FOOTER_MARKERS = /检测人[：:\s]*(审核人|审批人|生皮人)|检测人[：:]|审核人[：:]|审批人[：:]|生皮人[：:]|快速\s*FAST|脂谱生物|脂谱⽣物|有限公司|FAST|CONVENIENT|WIDESPREAD|omegabandz|公司地址|电子邮箱|电话[:：]?\s*400/;
   result.dietary_recommendations = result.dietary_recommendations.map(rec => {
     const m = rec.match(FOOTER_MARKERS);
     if (m && m.index != null && m.index > 0) {
