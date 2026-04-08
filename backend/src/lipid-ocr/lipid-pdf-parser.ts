@@ -282,25 +282,27 @@ export function parseLipidText(text: string): ParsedLipidReport {
     }
 
     // 饮食建议（支持多行合并：【N】开头为新条目，后续非【】开头的行拼接到上一条）
+    // 先宽松拼接，最后统一截断页脚内容
     if (/^【\d+】/.test(line)) {
       result.dietary_recommendations.push(line);
     } else if (result.dietary_recommendations.length > 0 && line.length > 0
-      && !/^(温馨提示|此检验|如您对|不能仅凭|检测人|审核人|脂谱生物|Omega|精准|Fatty|Basic)/.test(line)
-      && !/(检测人|审核人|脂谱生物|FAST|CONVENIENT|WIDESPREAD|电话:|电子邮箱:|公司地址:|omegabandz)/.test(line)
+      && !/^(温馨提示|此检验|如您对|不能仅凭|Omega|精准|Fatty|Basic)/.test(line)
       && !/^脂肪酸组/.test(line) && !/^比率/.test(line)
-      && !/^[\d.]+%/.test(line) && !/^综合营养建议/.test(line)) {
+      && !/^[\d.]+%/.test(line) && !/^综合营养建议/.test(line)
+      && !/^【\d+】/.test(line)) {
       const lastIdx = result.dietary_recommendations.length - 1;
       result.dietary_recommendations[lastIdx] += line;
     }
   }
 
-  // 后处理：截断混入了PDF页脚内容的建议条目
-  const FOOTER_MARKERS = /检测人[：:]|审核人[：:]|脂谱生物|FAST方便|CONVENIENT|WIDESPREAD|omegabandz|公司地址|电子邮箱|400-\d{4}/;
+  // 后处理：截断混入了PDF页脚内容的建议条目（检测人、审核人、公司信息等）
+  const FOOTER_MARKERS = /检测人[：:\s]*审核人|检测人[：:]|审核人[：:]|脂谱生物|脂谱⽣物|有限公司|FAST|CONVENIENT|WIDESPREAD|omegabandz|公司地址|电子邮箱|电话[:：]?\s*400/;
   result.dietary_recommendations = result.dietary_recommendations.map(rec => {
     const m = rec.match(FOOTER_MARKERS);
     if (m && m.index != null && m.index > 0) {
-      return rec.substring(0, m.index).replace(/[。，、\s]+$/, '。');
+      return rec.substring(0, m.index).replace(/[。，、：:\s]+$/, '') + '。';
     }
+    if (m && m.index === 0) return '';
     return rec;
   }).filter(rec => rec.length > 2);
 
