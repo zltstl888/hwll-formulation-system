@@ -268,7 +268,7 @@ function buildDietPlan(level: RiskLevel, dietaryRecommendations: string[] = []):
       key_points: dietaryRecommendations,
       foods_to_increase: [],
       foods_to_reduce: [],
-      evidence: '以上建议直接引用自脂谱生物科技检测报告"综合营养建议"，基于患者个体脂肪酸谱数据精准生成',
+      evidence: '以上建议基于患者个体脂肪酸谱检测数据精准生成',
     };
   }
 
@@ -470,5 +470,190 @@ export function generateFormulation(
   // 完整结果 JSON（包含所有层级）
   result.db_fields.formula_json = JSON.stringify(result);
 
+  return result;
+}
+
+// ─────────────────────────────────────────────
+// 10. 通用套餐（无脂肪谱报告）
+// 基于常规体检数据的基础营养支持方案
+// ─────────────────────────────────────────────
+export function generateGenericFormulation(
+  patient: PatientContext,
+  basicLipids?: { total_cholesterol?: number; ldl_c?: number; triglyceride?: number; hdl_c?: number }
+): FormulationResult {
+  const level: RiskLevel = 'mild';
+  const levelLabel = '通用';
+
+  // 构造一个仅含常规血脂的空报告
+  const report: LipidProfileReport = {
+    id: 0, patient_id: 0, report_date: null,
+    aa_epa_ratio: null, epa: null, omega3_index: null, omega3_total: null,
+    omega6_omega3_ratio: null, dha: null, aa: null, la: null, omega6_total: null,
+    total_cholesterol: basicLipids?.total_cholesterol ?? null,
+    ldl_c: basicLipids?.ldl_c ?? null,
+    triglyceride: basicLipids?.triglyceride ?? null,
+    hdl_c: basicLipids?.hdl_c ?? null,
+  };
+
+  // ── 产品推荐 ──
+  const products: ProductRecommendation[] = [];
+
+  // 核心：EPA鱼油（mild剂量）
+  {
+    const catalog = getProductById('epa_fish_oil')!;
+    const dose = catalog.doses.mild!;
+    products.push({
+      product_id: catalog.product_id,
+      product_name: catalog.product_name,
+      category: 'core',
+      dose: dose.dose,
+      dose_per_serving: dose.dose_per_serving,
+      frequency: dose.frequency,
+      duration: dose.duration,
+      indication: 'Omega-3是人体必需脂肪酸，现代饮食普遍摄入不足。EPA具有抗炎、降低甘油三酯、维护心血管健康等多重效应。建议进行脂肪酸谱检测以获取精准个性化剂量。',
+      evidence: getEvidence(...dose.evidence_ids),
+      warnings: checkContraindications(catalog.product_id, patient),
+    });
+  }
+
+  // 核心：七联益生菌粉（mild剂量）
+  {
+    const catalog = getProductById('seven_probiotics')!;
+    const dose = catalog.doses.mild!;
+    products.push({
+      product_id: catalog.product_id,
+      product_name: catalog.product_name,
+      category: 'core',
+      dose: dose.dose,
+      dose_per_serving: dose.dose_per_serving,
+      frequency: dose.frequency,
+      duration: dose.duration,
+      indication: '肠道微生态与脂代谢、免疫功能密切相关。益生菌通过肠道ABCA1通路促进HDL分泌，改善脂代谢，修复肠道屏障，降低慢性炎症水平。',
+      evidence: getEvidence(...dose.evidence_ids),
+      warnings: checkContraindications(catalog.product_id, patient),
+    });
+  }
+
+  // 条件性：纳豆红曲（常规血脂异常触发）
+  if (shouldAddNatto(report)) {
+    const catalog = getProductById('natto_red_yeast')!;
+    const dose = catalog.doses.mild!;
+    const triggers: string[] = [];
+    if (basicLipids?.total_cholesterol && basicLipids.total_cholesterol >= 5.2)
+      triggers.push(`TC ${basicLipids.total_cholesterol} mmol/L`);
+    if (basicLipids?.ldl_c && basicLipids.ldl_c >= 3.4)
+      triggers.push(`LDL-C ${basicLipids.ldl_c} mmol/L`);
+    if (basicLipids?.triglyceride && basicLipids.triglyceride >= 1.7)
+      triggers.push(`TG ${basicLipids.triglyceride} mmol/L`);
+    products.push({
+      product_id: catalog.product_id,
+      product_name: catalog.product_name,
+      category: 'conditional',
+      dose: dose.dose,
+      dose_per_serving: dose.dose_per_serving,
+      frequency: dose.frequency,
+      duration: dose.duration,
+      indication: `常规血脂检测异常：${triggers.join('、')}。纳豆激酶+红曲莫纳可林K协同降低LDL-C和TG`,
+      evidence: getEvidence(...dose.evidence_ids),
+      warnings: checkContraindications(catalog.product_id, patient),
+    });
+  }
+
+  // 条件性产品：短肽、纾炏宁（同正常逻辑）
+  if (shouldAddPeptide(patient)) {
+    const catalog = getProductById('peptide_nutrients')!;
+    const dose = catalog.doses.mild!;
+    products.push({
+      product_id: catalog.product_id,
+      product_name: catalog.product_name,
+      category: 'conditional',
+      dose: dose.dose, dose_per_serving: dose.dose_per_serving,
+      frequency: dose.frequency, duration: dose.duration,
+      indication: `患者存在营养支持需求（${patient.diagnosis || '见病史'}），短肽营养改善蛋白质合成`,
+      evidence: getEvidence(...dose.evidence_ids),
+      warnings: checkContraindications(catalog.product_id, patient),
+    });
+  }
+  if (shouldAddShuyan(patient)) {
+    const catalog = getProductById('shuyan_ning')!;
+    const dose = catalog.doses.mild!;
+    products.push({
+      product_id: catalog.product_id,
+      product_name: catalog.product_name,
+      category: 'conditional',
+      dose: dose.dose, dose_per_serving: dose.dose_per_serving,
+      frequency: dose.frequency, duration: dose.duration,
+      indication: `患者存在免疫/炎症状态（${patient.diagnosis || '见诊断'}），接骨木莓+益生菌调节免疫`,
+      evidence: getEvidence(...dose.evidence_ids),
+      warnings: checkContraindications(catalog.product_id, patient),
+    });
+  }
+
+  // ── 其他干预方案（复用mild级别逻辑）──
+  const dietPlan = buildDietPlan(level);
+  const exercisePlan = buildExercisePlan(level, patient.age);
+  const lifestylePlan = buildLifestylePlan(level);
+
+  // 随访计划：特别建议做脂肪谱检测
+  const followupPlan: FollowupPlan = {
+    review_weeks: 12,
+    review_date: (() => { const d = new Date(); d.setDate(d.getDate() + 84); return d.toISOString().split('T')[0]; })(),
+    items_to_check: [
+      '★ 脂肪酸谱全套检测（AA:EPA、EPA%、Omega-3指数）— 强烈建议，可获取精准个性化配方',
+      '常规血脂（TC、TG、LDL-C、HDL-C）',
+      '评估产品耐受性和依从性',
+    ],
+    expected_outcome: '12周基础营养支持后，预计整体炎症水平降低、肠道健康改善。完成脂肪酸谱检测后可升级为精准个性化方案。',
+  };
+
+  // ── 风险摘要 ──
+  const lipidParts: string[] = [];
+  if (basicLipids?.total_cholesterol) lipidParts.push(`TC=${basicLipids.total_cholesterol}`);
+  if (basicLipids?.ldl_c) lipidParts.push(`LDL-C=${basicLipids.ldl_c}`);
+  if (basicLipids?.triglyceride) lipidParts.push(`TG=${basicLipids.triglyceride}`);
+  if (basicLipids?.hdl_c) lipidParts.push(`HDL-C=${basicLipids.hdl_c}`);
+
+  const riskSummary = lipidParts.length > 0
+    ? `常规体检血脂数据（${lipidParts.join('、')} mmol/L）。未进行脂肪酸谱检测，无法评估AA:EPA比值和Omega-3指数，采用通用基础营养支持方案。建议尽早完成脂肪酸谱检测以获取精准干预方案。`
+    : '未提供脂肪酸谱检测数据，采用通用基础营养支持方案。建议尽早完成脂肪酸谱检测（AA:EPA比值、EPA%、Omega-3指数），以获取精准个性化干预配方。';
+
+  const planName = `通用基础营养支持方案（${new Date().toISOString().split('T')[0]}）`;
+
+  const result: FormulationResult = {
+    success: true,
+    formulation_version: FORMULATION_VERSION + '-generic',
+    generated_at: new Date().toISOString(),
+    patient: { name: patient.name, age: patient.age, gender: patient.gender },
+    risk_assessment: {
+      level: 'mild',
+      level_label: '通用',
+      primary_indicators: {
+        aa_epa_ratio: null,
+        epa_pct: null,
+        omega3_index: null,
+        omega6_omega3_ratio: null,
+      },
+      risk_summary: riskSummary,
+    },
+    formulation: {
+      products,
+      diet_intervention: dietPlan,
+      exercise_prescription: exercisePlan,
+      lifestyle_intervention: lifestylePlan,
+      followup_plan: followupPlan,
+    },
+    db_fields: {
+      plan_name: planName,
+      risk_level: 'generic',
+      product_recommendations: JSON.stringify(products),
+      formula_json: '',
+      nutrition_plan: `【膳食模式】${dietPlan.pattern}\n【关键建议】${dietPlan.key_points.join('；')}`,
+      exercise_plan: `【运动类型】${exercisePlan.type}\n【频次】${exercisePlan.frequency}`,
+      lifestyle_plan: lifestylePlan.key_points.map((p, i) => `${i + 1}. ${p}`).join('\n'),
+      goals: '12周基础营养支持，改善整体代谢健康。强烈建议进行脂肪酸谱检测以获取个性化精准配方。',
+      summary: `通用基础营养支持方案，推荐${products.length}个产品。${lipidParts.length > 0 ? '基于常规血脂数据。' : ''}算法版本${FORMULATION_VERSION}。`,
+    },
+  };
+  result.db_fields.formula_json = JSON.stringify(result);
   return result;
 }

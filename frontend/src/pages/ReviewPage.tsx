@@ -11,12 +11,12 @@ interface Props {
 }
 
 const KEY_FIELDS = [
-  { key: 'aa_epa_ratio',       label: 'AA : EPA',      unit: '',  isCritical: (v: number) => v > 30, isWarning: (v: number) => v > 10 },
-  { key: 'omega3_index',       label: 'Omega-3 指数', unit: '%', isCritical: (v: number) => v < 4,  isWarning: (v: number) => v < 7  },
-  { key: 'epa',                label: 'EPA',            unit: '%', isCritical: (v: number) => v < 0.5,isWarning: (v: number) => v < 1.5},
-  { key: 'dha',                label: 'DHA',            unit: '%', isCritical: () => false,           isWarning: (v: number) => v < 3  },
-  { key: 'aa',                 label: 'AA',             unit: '%', isCritical: () => false,           isWarning: (v: number) => v > 10 },
-  { key: 'omega6_omega3_ratio',label: 'ω6 : ω3',       unit: '',  isCritical: (v: number) => v > 20, isWarning: (v: number) => v > 10 },
+  { key: 'aa_epa_ratio',       label: 'AA : EPA',      unit: '',  isCritical: (v: number) => v > 10, isWarning: (v: number) => v > 3  },
+  { key: 'omega3_index',       label: 'Omega-3 指数', unit: '%', isCritical: (v: number) => v < 7,  isWarning: (v: number) => v < 10 },
+  { key: 'epa',                label: 'EPA',            unit: '%', isCritical: (v: number) => v < 1.5,isWarning: (v: number) => v < 3  },
+  { key: 'dha',                label: 'DHA',            unit: '%', isCritical: (v: number) => v < 2,  isWarning: (v: number) => v < 3  },
+  { key: 'aa',                 label: 'AA',             unit: '%', isCritical: (v: number) => v > 15, isWarning: (v: number) => v > 10 },
+  { key: 'omega6_omega3_ratio',label: 'ω6 : ω3',       unit: '',  isCritical: (v: number) => v > 10, isWarning: (v: number) => v > 4  },
 ];
 
 /* Range bar configs for visual indicators below each key field input */

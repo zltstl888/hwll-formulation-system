@@ -25,21 +25,20 @@ interface IndicatorDef {
 function getValueColor(ind: IndicatorDef): string {
   const v = ind.value ?? 0;
   if (ind.inverted) {
+    // AA:EPA — 越低越好
     if (v <= 3)  return '#00FF94';
     if (v <= 10) return '#FFB800';
-    if (v <= 30) return '#FF8C00';
     return '#FF2D55';
   }
   if (ind.key === 'omega3') {
-    if (v >= 8) return '#00FF94';
-    if (v >= 4) return '#FFB800';
-    if (v >= 2) return '#FF8C00';
+    // Omega-3 index — 越高越好
+    if (v >= 10) return '#00FF94';
+    if (v >= 7)  return '#FFB800';
     return '#FF2D55';
   }
-  // epa
+  // EPA — 越高越好
   if (v >= 3)   return '#00FF94';
   if (v >= 1.5) return '#FFB800';
-  if (v >= 0.5) return '#FF8C00';
   return '#FF2D55';
 }
 

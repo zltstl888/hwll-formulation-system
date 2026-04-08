@@ -54,7 +54,6 @@ function calcBoxes(product: { product_id: string; dose: string; duration: string
 
 export default function ReportPage({ result, onRestart }: Props) {
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>('产品方案');
-  const [expandedEvidence, setExpandedEvidence] = useState<string | null>(null);
   const { risk_assessment: risk, formulation, patient } = result;
 
   return (
@@ -262,13 +261,6 @@ export default function ReportPage({ result, onRestart }: Props) {
               {activeTab === '产品方案' && (() => {
                 const allProducts = formulation.products;
                 const durationWeeks = allProducts.length > 0 ? parseDurationWeeks(allProducts[0].duration) : 12;
-                // Deduplicate evidence across products
-                const seenCitations = new Set<string>();
-                const allEvidence = allProducts.flatMap(p => p.evidence).filter((e: any) => {
-                  if (seenCitations.has(e.citation_id)) return false;
-                  seenCitations.add(e.citation_id);
-                  return true;
-                });
 
                 return (
                   <div className="relative bracket rounded-2xl overflow-hidden"
@@ -377,43 +369,6 @@ export default function ReportPage({ result, onRestart }: Props) {
                       )}
                     </div>
 
-                    {/* ── Evidence Toggle ── */}
-                    <div className="px-6 pb-5 sm:px-8 sm:pb-6">
-                      <button
-                        onClick={() => setExpandedEvidence(expandedEvidence === '_all' ? null : '_all')}
-                        className="w-full py-3 rounded-xl font-data text-xs tracking-wider transition-all"
-                        style={{
-                          background: expandedEvidence === '_all' ? 'rgba(0,229,255,0.08)' : 'rgba(3,7,18,0.4)',
-                          border: '1px solid rgba(0,229,255,0.10)',
-                          color: 'var(--text-dim)',
-                        }}>
-                        {expandedEvidence === '_all' ? '收起循证依据 ↑' : '查看循证依据 ↓'}
-                      </button>
-                      <AnimatePresence>
-                        {expandedEvidence === '_all' && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="overflow-hidden">
-                            <div className="pt-4 space-y-3">
-                              {allEvidence.map((e: any) => (
-                                <div key={e.citation_id} className="rounded-xl p-4"
-                                  style={{ background: 'rgba(3,7,18,0.6)', border: '1px solid rgba(0,229,255,0.08)' }}>
-                                  <div className="flex items-center gap-3 mb-2">
-                                    <span className="font-data text-xs font-bold tracking-wider px-2 py-0.5 rounded"
-                                      style={{ background: 'rgba(0,229,255,0.12)', color: '#00E5FF' }}>{e.citation_id}</span>
-                                    <span className="font-body text-xs font-semibold" style={{ color: 'var(--text-hi)' }}>{e.citation_label}</span>
-                                  </div>
-                                  <p className="font-body text-sm leading-relaxed mb-1" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>{e.statement}</p>
-                                  <p className="font-data text-xs italic" style={{ color: 'var(--text-dim)' }}>{e.source}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
                   </div>
                 );
               })()}
@@ -421,7 +376,6 @@ export default function ReportPage({ result, onRestart }: Props) {
               {activeTab === '膳食干预' && (
                 <InterventionPanel
                   title={formulation.diet_intervention.pattern}
-                  evidence={formulation.diet_intervention.evidence}
                   sections={[
                     { label: '关键原则', items: formulation.diet_intervention.key_points, color: '#00E5FF' },
                     { label: '建议增加', items: formulation.diet_intervention.foods_to_increase, color: '#00FF94' },
@@ -436,12 +390,11 @@ export default function ReportPage({ result, onRestart }: Props) {
                   <h3 className="font-title text-lg font-bold mb-8 tracking-wide" style={{ color: 'var(--text-hi)' }}>
                     {formulation.exercise_prescription.type}
                   </h3>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     {[
                       { label: 'FREQUENCY', value: formulation.exercise_prescription.frequency },
                       { label: 'DURATION',  value: formulation.exercise_prescription.duration  },
                       { label: 'INTENSITY', value: formulation.exercise_prescription.intensity  },
-                      { label: 'EVIDENCE',  value: formulation.exercise_prescription.evidence.split('，')[0] },
                     ].map(item => (
                       <div key={item.label} className="rounded-xl p-5 text-center"
                         style={{ background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.10)' }}>
@@ -464,10 +417,6 @@ export default function ReportPage({ result, onRestart }: Props) {
                 <div className="relative bracket rounded-2xl p-5 sm:p-8"
                   style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
                   <ListBlock label="干预要点" items={formulation.lifestyle_intervention.key_points} color="#7B2FF7" />
-                  <p className="font-body text-sm mt-6 pt-5 leading-relaxed"
-                    style={{ color: 'var(--text-mid)', borderTop: '1px solid rgba(0,229,255,0.06)', lineHeight: 1.75 }}>
-                    {formulation.lifestyle_intervention.evidence}
-                  </p>
                 </div>
               )}
 
@@ -623,16 +572,14 @@ export default function ReportPage({ result, onRestart }: Props) {
   );
 }
 
-function InterventionPanel({ title, evidence, sections }: {
+function InterventionPanel({ title, sections }: {
   title: string;
-  evidence: string;
   sections: { label: string; items: string[]; color: string }[];
 }) {
   return (
     <div className="relative bracket rounded-2xl p-5 sm:p-8"
       style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
-      <h3 className="font-title text-lg font-bold tracking-wide mb-2" style={{ color: 'var(--text-hi)' }}>{title}</h3>
-      <p className="font-body text-sm mb-8 leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.75 }}>{evidence}</p>
+      <h3 className="font-title text-lg font-bold tracking-wide mb-6" style={{ color: 'var(--text-hi)' }}>{title}</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {sections.map(sec => <ListBlock key={sec.label} label={sec.label} items={sec.items} color={sec.color} />)}
       </div>

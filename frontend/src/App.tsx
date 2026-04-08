@@ -3,11 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import UploadPage from './pages/UploadPage';
 import ReviewPage from './pages/ReviewPage';
 import ReportPage from './pages/ReportPage';
-import { generatePlan } from './api/formulation';
+import GenericInputPage from './pages/GenericInputPage';
+import { generatePlan, generateGenericPlan } from './api/formulation';
 import type { LipidValues, PatientInfo, FormulationResult } from './types';
 import './index.css';
 
-type Step = 'upload' | 'review' | 'generating' | 'report';
+type Step = 'upload' | 'review' | 'generating' | 'report' | 'generic-input';
 
 const PAGE_TRANSITION = {
   initial: { opacity: 0, x: 30 },
@@ -104,6 +105,29 @@ export default function App() {
     }
   };
 
+  const handleGenericGenerate = async (
+    patientInfo: { name: string; age: string; gender: string; diagnosis: string; medications: string },
+    basicLipids?: { total_cholesterol?: number; ldl_c?: number; triglyceride?: number; hdl_c?: number }
+  ) => {
+    setGenerating(true);
+    setGenError('');
+    setStep('generating');
+    try {
+      const [plan] = await Promise.all([
+        generateGenericPlan(patientInfo, basicLipids),
+        new Promise(r => setTimeout(r, MIN_GENERATE_MS)),
+      ]);
+      setResult(plan);
+      await new Promise(r => setTimeout(r, 400));
+      setStep('report');
+    } catch (e: any) {
+      setGenError(e.message || '通用套餐生成失败，请重试');
+      setStep('generic-input');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleRestart = () => {
     setStep('upload');
     setLipidValues(null);
@@ -115,7 +139,22 @@ export default function App() {
     <AnimatePresence mode="wait">
       {step === 'upload' && (
         <motion.div key="upload" {...PAGE_TRANSITION}>
-          <UploadPage onParsed={handleParsed} />
+          <UploadPage onParsed={handleParsed} onGeneric={() => setStep('generic-input')} />
+        </motion.div>
+      )}
+      {step === 'generic-input' && (
+        <motion.div key="generic" {...PAGE_TRANSITION}>
+          <GenericInputPage
+            onGenerate={handleGenericGenerate}
+            onBack={handleRestart}
+            generating={generating}
+          />
+          {genError && (
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-sm"
+              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#fca5a5' }}>
+              {genError}
+            </div>
+          )}
         </motion.div>
       )}
       {step === 'review' && lipidValues && (

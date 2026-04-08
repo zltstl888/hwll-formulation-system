@@ -4,7 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { parseLipidPdf } from './lipid-ocr/lipid-pdf-parser';
-import { generateFormulation } from './formulation/formulation-engine';
+import { generateFormulation, generateGenericFormulation } from './formulation/formulation-engine';
 import type { PatientContext, LipidProfileReport } from './formulation/types';
 
 const app = express();
@@ -102,6 +102,30 @@ app.post('/api/generate', async (req, res) => {
   } catch (err: any) {
     console.error('配方生成失败:', err);
     res.status(500).json({ error: '配方生成失败: ' + (err.message || '未知错误') });
+  }
+});
+
+// ─── POST /api/generate-generic ───────────────────────────────────────────
+// 通用套餐：无需脂肪谱报告，基于常规体检数据
+app.post('/api/generate-generic', async (req, res) => {
+  try {
+    const { patientInfo, basicLipids } = req.body;
+    const patient: PatientContext = {
+      id: 0,
+      name: patientInfo?.name || '未命名患者',
+      age: patientInfo?.age || null,
+      gender: patientInfo?.gender || null,
+      birth_date: null,
+      diagnosis: patientInfo?.diagnosis || null,
+      current_medications: patientInfo?.medications || null,
+      medical_history: null,
+      allergy_history: null,
+    };
+    const plan = generateGenericFormulation(patient, basicLipids);
+    res.json({ success: true, data: plan });
+  } catch (err: any) {
+    console.error('通用套餐生成失败:', err);
+    res.status(500).json({ error: '生成失败: ' + (err.message || '未知错误') });
   }
 });
 

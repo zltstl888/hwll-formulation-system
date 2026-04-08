@@ -6,6 +6,7 @@ import type { LipidValues } from '../types';
 
 interface Props {
   onParsed: (data: LipidValues, file: File) => void;
+  onGeneric?: () => void;
 }
 
 const STEPS = ['上传报告', '确认数值', '生成配方'];
@@ -72,7 +73,7 @@ function useParseProgress(isParsing: boolean) {
   return { progress, stageText };
 }
 
-export default function UploadPage({ onParsed }: Props) {
+export default function UploadPage({ onParsed, onGeneric }: Props) {
   const [status, setStatus] = useState<'idle' | 'parsing' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const { progress, stageText } = useParseProgress(status === 'parsing');
@@ -343,6 +344,27 @@ export default function UploadPage({ onParsed }: Props) {
             </div>
           ))}
         </motion.div>
+
+        {/* Generic package entry */}
+        {onGeneric && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 text-center"
+          >
+            <div className="h-px mb-4 mx-12" style={{ background: 'linear-gradient(to right, transparent, rgba(0,255,148,0.15), transparent)' }} />
+            <button
+              onClick={onGeneric}
+              className="font-body text-sm transition-all"
+              style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#00FF94'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-dim)'; }}
+            >
+              没有脂肪谱报告？→ <span style={{ textDecoration: 'underline' }}>使用通用健康套餐</span>
+            </button>
+          </motion.div>
+        )}
 
       </div>
     </div>
