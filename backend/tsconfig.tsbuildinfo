@@ -1,0 +1,1 @@
+{"root":["./src/server.ts","./src/formulation/evidence-db.ts","./src/formulation/formulation-engine.ts","./src/formulation/product-catalog.ts","./src/formulation/types.ts","./src/lipid-ocr/lipid-pdf-parser.ts"],"version":"5.9.3"}
