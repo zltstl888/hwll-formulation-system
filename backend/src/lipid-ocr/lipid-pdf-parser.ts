@@ -281,9 +281,15 @@ export function parseLipidText(text: string): ParsedLipidReport {
       }
     }
 
-    // 饮食建议
+    // 饮食建议（支持多行合并：【N】开头为新条目，后续非【】开头的行拼接到上一条）
     if (/^【\d+】/.test(line)) {
       result.dietary_recommendations.push(line);
+    } else if (result.dietary_recommendations.length > 0 && line.length > 0
+      && !/^(温馨提示|此检验|如您对|不能仅凭|检测人|审核人|脂谱生物|Omega|精准|Fatty|Basic)/.test(line)
+      && !/^脂肪酸组/.test(line) && !/^比率/.test(line)
+      && !/^[\d.]+%/.test(line) && !/^综合营养建议/.test(line)) {
+      const lastIdx = result.dietary_recommendations.length - 1;
+      result.dietary_recommendations[lastIdx] += line;
     }
   }
 

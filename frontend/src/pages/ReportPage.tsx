@@ -24,12 +24,38 @@ function productPalette(idx: number, conditional: boolean) {
   return PRODUCT_PALETTE[idx % PRODUCT_PALETTE.length];
 }
 
+// ── 处方盒数计算 ──
+const PRODUCT_PACKAGING: Record<string, { units_per_box: number; unit: string }> = {
+  epa_fish_oil:       { units_per_box: 60, unit: '粒' },
+  glutathione_multi:  { units_per_box: 60, unit: '粒' },
+  seven_probiotics:   { units_per_box: 30, unit: '袋' },
+  natto_red_yeast:    { units_per_box: 30, unit: '袋' },
+  peptide_nutrients:  { units_per_box: 15, unit: '袋' },
+  shuyan_ning:        { units_per_box: 30, unit: '袋' },
+};
+
+function parseDailyUnits(dose: string): number {
+  const m = dose.match(/每日(\d+)/);
+  return m ? parseInt(m[1]) : 1;
+}
+
+function parseDurationWeeks(duration: string): number {
+  const m = duration.match(/(\d+)周/);
+  return m ? parseInt(m[1]) : 12;
+}
+
+function calcBoxes(product: { product_id: string; dose: string; duration: string }): number {
+  const pkg = PRODUCT_PACKAGING[product.product_id];
+  if (!pkg) return 1;
+  const daily = parseDailyUnits(product.dose);
+  const weeks = parseDurationWeeks(product.duration);
+  return Math.ceil((daily * weeks * 7) / pkg.units_per_box);
+}
+
 export default function ReportPage({ result, onRestart }: Props) {
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>('产品方案');
   const [expandedEvidence, setExpandedEvidence] = useState<string | null>(null);
   const { risk_assessment: risk, formulation, patient } = result;
-  const coreProducts = formulation.products.filter(p => p.category === 'core');
-  const condProducts = formulation.products.filter(p => p.category === 'conditional');
 
   return (
     <div className="grid-bg min-h-screen relative overflow-x-hidden"
@@ -160,63 +186,6 @@ export default function ReportPage({ result, onRestart }: Props) {
           </div>
         </motion.div>
 
-        {/* ── Expert Video Section ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="relative bracket rounded-2xl mb-8 no-print"
-          style={{
-            background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.85))',
-            border: '1px solid rgba(123,47,247,0.15)',
-            padding: '24px',
-          }}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(123,47,247,0.15)', border: '1px solid rgba(123,47,247,0.3)' }}>
-              <span style={{ fontSize: 16 }}>🎬</span>
-            </div>
-            <div>
-              <h3 className="font-title text-sm font-semibold tracking-wider" style={{ color: 'var(--text-hi)' }}>专家视频解读</h3>
-              <p className="font-data text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>EXPERT VIDEO · 了解脂肪酸干预原理</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { title: '平衡脂肪谱·改造免疫代谢失衡体质', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/20250517.mp4' },
-              { title: '利用细胞再生·调整脂代谢失衡体质', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/050429.mp4' },
-              { title: '基于大数据·精准营养干预', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/zf.mp4' },
-              { title: '脂均衡营养·控制三高', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/zjhkzsg.mp4' },
-            ].map((video, i) => (
-              <a
-                key={i}
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl p-4 transition-all duration-300 block"
-                style={{
-                  background: 'rgba(3,7,18,0.6)',
-                  border: '1px solid rgba(123,47,247,0.12)',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.4)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(123,47,247,0.15)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
-              >
-                <div className="flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto"
-                  style={{ background: 'rgba(123,47,247,0.12)', border: '1px solid rgba(123,47,247,0.25)' }}>
-                  <span style={{ fontSize: 18 }}>▶</span>
-                </div>
-                <p className="font-body text-xs font-semibold text-center leading-snug mb-1" style={{ color: 'var(--text-hi)', lineHeight: 1.4 }}>
-                  {video.title}
-                </p>
-                <p className="font-data text-xs text-center" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
-                  {video.speaker}
-                </p>
-              </a>
-            ))}
-          </div>
-        </motion.div>
-
         {/* ── Five-Dimension Overview ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -290,56 +259,164 @@ export default function ReportPage({ result, onRestart }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
             >
-              {activeTab === '产品方案' && (
-                <div className="space-y-8">
-                  {coreProducts.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-3 mb-5">
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(0,229,255,0.3), transparent)' }} />
-                        <span className="font-title text-xs tracking-[0.22em] px-4 py-1.5 rounded-full"
-                          style={{ color: '#00E5FF', border: '1px solid rgba(0,229,255,0.3)', background: 'rgba(0,229,255,0.06)' }}>
-                          核心产品方案
-                        </span>
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(0,229,255,0.3), transparent)' }} />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                        {coreProducts.map((p, i) => (
-                          <ProductCard
-                            key={p.product_id}
-                            product={p}
-                            palette={productPalette(i, false)}
-                            expanded={expandedEvidence === p.product_id}
-                            onToggle={() => setExpandedEvidence(expandedEvidence === p.product_id ? null : p.product_id)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {condProducts.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-3 mb-5">
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(255,184,0,0.25), transparent)' }} />
-                        <span className="font-title text-xs tracking-[0.22em] px-4 py-1.5 rounded-full"
-                          style={{ color: '#FFB800', border: '1px solid rgba(255,184,0,0.3)', background: 'rgba(255,184,0,0.06)' }}>
-                          条件触发方案
-                        </span>
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(255,184,0,0.25), transparent)' }} />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                        {condProducts.map((p, i) => (
-                          <ProductCard
-                            key={p.product_id}
-                            product={p}
-                            palette={productPalette(i, true)}
-                            expanded={expandedEvidence === p.product_id}
-                            onToggle={() => setExpandedEvidence(expandedEvidence === p.product_id ? null : p.product_id)}
-                          />
-                        ))}
+              {activeTab === '产品方案' && (() => {
+                const allProducts = formulation.products;
+                const durationWeeks = allProducts.length > 0 ? parseDurationWeeks(allProducts[0].duration) : 12;
+                // Deduplicate evidence across products
+                const seenCitations = new Set<string>();
+                const allEvidence = allProducts.flatMap(p => p.evidence).filter((e: any) => {
+                  if (seenCitations.has(e.citation_id)) return false;
+                  seenCitations.add(e.citation_id);
+                  return true;
+                });
+
+                return (
+                  <div className="relative bracket rounded-2xl overflow-hidden"
+                    style={{ background: 'rgba(9,18,32,0.95)', border: '1px solid rgba(0,229,255,0.15)' }}>
+
+                    {/* ── Prescription Header ── */}
+                    <div className="px-6 py-4 sm:px-8 sm:py-5"
+                      style={{ background: 'linear-gradient(135deg, rgba(0,229,255,0.08), rgba(123,47,247,0.06))', borderBottom: '1px solid rgba(0,229,255,0.10)' }}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-title text-lg sm:text-xl font-bold tracking-wide" style={{ color: '#00E5FF' }}>
+                            患者个性化套餐
+                          </h3>
+                          <p className="font-data text-xs mt-1 tracking-wider" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
+                            PERSONALIZED FORMULATION · {risk.level_label}风险 · {durationWeeks}周用量
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>PRODUCTS</p>
+                          <p className="font-title text-2xl font-black" style={{ color: '#00E5FF' }}>{allProducts.length}</p>
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
+
+                    {/* ── Product List (Prescription Style) ── */}
+                    <div className="px-6 py-5 sm:px-8 sm:py-6">
+                      <div className="rounded-xl overflow-hidden mb-6"
+                        style={{ border: '1px solid rgba(0,229,255,0.08)' }}>
+                        {allProducts.map((p, i) => {
+                          const pal = productPalette(i, p.category === 'conditional');
+                          const boxes = calcBoxes(p);
+                          return (
+                            <div key={p.product_id}
+                              className="flex items-center justify-between px-5 py-3.5"
+                              style={{
+                                background: i % 2 === 0 ? 'rgba(3,7,18,0.5)' : 'rgba(3,7,18,0.3)',
+                                borderBottom: i < allProducts.length - 1 ? '1px solid rgba(0,229,255,0.05)' : 'none',
+                              }}>
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="font-data text-xs w-5 text-center flex-shrink-0" style={{ color: pal.color }}>{i + 1}</span>
+                                <span className="font-body text-sm font-semibold truncate" style={{ color: 'var(--text-hi)' }}>{p.product_name}</span>
+                                {p.category === 'conditional' && (
+                                  <span className="font-data px-1.5 py-0.5 rounded flex-shrink-0"
+                                    style={{ background: 'rgba(255,184,0,0.12)', color: '#FFB800', fontSize: 10 }}>条件</span>
+                                )}
+                              </div>
+                              <span className="font-data text-sm font-bold flex-shrink-0 ml-4" style={{ color: pal.color }}>
+                                × {boxes} 盒
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* ── Usage Instructions ── */}
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(0,229,255,0.2), transparent)' }} />
+                        <span className="font-title text-xs tracking-[0.2em]" style={{ color: 'var(--text-dim)' }}>用法用量</span>
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(0,229,255,0.2), transparent)' }} />
+                      </div>
+
+                      <div className="space-y-4">
+                        {allProducts.map((p, i) => {
+                          const pal = productPalette(i, p.category === 'conditional');
+                          return (
+                            <div key={p.product_id} className="rounded-xl p-4 sm:p-5"
+                              style={{ background: `linear-gradient(135deg, ${pal.bg}, rgba(3,7,18,0.5))`, border: `1px solid ${pal.border}` }}>
+                              <div className="flex items-center gap-2 mb-3">
+                                <span className="font-data text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                                  style={{ background: `${pal.color}20`, color: pal.color }}>{i + 1}</span>
+                                <span className="font-body text-sm font-bold" style={{ color: 'var(--text-hi)' }}>{p.product_name}</span>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-3">
+                                <div>
+                                  <p className="font-data text-xs mb-1" style={{ color: 'var(--text-dim)', letterSpacing: '0.1em' }}>服用方法</p>
+                                  <p className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{p.dose}</p>
+                                </div>
+                                <div>
+                                  <p className="font-data text-xs mb-1" style={{ color: 'var(--text-dim)', letterSpacing: '0.1em' }}>频次</p>
+                                  <p className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{p.frequency}</p>
+                                </div>
+                                <div>
+                                  <p className="font-data text-xs mb-1" style={{ color: 'var(--text-dim)', letterSpacing: '0.1em' }}>疗程</p>
+                                  <p className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{p.duration}</p>
+                                </div>
+                              </div>
+                              <p className="font-body text-xs leading-relaxed" style={{ color: 'var(--text-dim)', lineHeight: 1.6 }}>
+                                {p.indication}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* ── Warnings ── */}
+                      {allProducts.some(p => p.warnings?.length > 0) && (
+                        <div className="mt-5 rounded-xl p-4" style={{ background: 'rgba(255,184,0,0.04)', border: '1px solid rgba(255,184,0,0.15)' }}>
+                          <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'rgba(255,184,0,0.7)', letterSpacing: '0.15em' }}>
+                            ⚠ 用药注意事项
+                          </p>
+                          {allProducts.flatMap(p => (p.warnings || []).map((w: string, wi: number) => (
+                            <p key={`${p.product_id}-${wi}`} className="font-body text-sm mb-1.5 leading-relaxed"
+                              style={{ color: '#FFB800', lineHeight: 1.7 }}>{w}</p>
+                          )))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ── Evidence Toggle ── */}
+                    <div className="px-6 pb-5 sm:px-8 sm:pb-6">
+                      <button
+                        onClick={() => setExpandedEvidence(expandedEvidence === '_all' ? null : '_all')}
+                        className="w-full py-3 rounded-xl font-data text-xs tracking-wider transition-all"
+                        style={{
+                          background: expandedEvidence === '_all' ? 'rgba(0,229,255,0.08)' : 'rgba(3,7,18,0.4)',
+                          border: '1px solid rgba(0,229,255,0.10)',
+                          color: 'var(--text-dim)',
+                        }}>
+                        {expandedEvidence === '_all' ? '收起循证依据 ↑' : '查看循证依据 ↓'}
+                      </button>
+                      <AnimatePresence>
+                        {expandedEvidence === '_all' && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden">
+                            <div className="pt-4 space-y-3">
+                              {allEvidence.map((e: any) => (
+                                <div key={e.citation_id} className="rounded-xl p-4"
+                                  style={{ background: 'rgba(3,7,18,0.6)', border: '1px solid rgba(0,229,255,0.08)' }}>
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <span className="font-data text-xs font-bold tracking-wider px-2 py-0.5 rounded"
+                                      style={{ background: 'rgba(0,229,255,0.12)', color: '#00E5FF' }}>{e.citation_id}</span>
+                                    <span className="font-body text-xs font-semibold" style={{ color: 'var(--text-hi)' }}>{e.citation_label}</span>
+                                  </div>
+                                  <p className="font-body text-sm leading-relaxed mb-1" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>{e.statement}</p>
+                                  <p className="font-data text-xs italic" style={{ color: 'var(--text-dim)' }}>{e.source}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {activeTab === '膳食干预' && (
                 <InterventionPanel
@@ -395,37 +472,129 @@ export default function ReportPage({ result, onRestart }: Props) {
               )}
 
               {activeTab === '随访计划' && (
-                <div className="relative bracket rounded-2xl p-5 sm:p-8"
-                  style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="space-y-5">
-                      <div className="rounded-2xl p-7 text-center"
-                        style={{ background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.15)' }}>
-                        <p className="font-data text-xs tracking-widest mb-4" style={{ color: 'var(--text-dim)', letterSpacing: '0.18em' }}>
-                          NEXT REVIEW
-                        </p>
-                        <p className="font-title text-5xl font-black mb-2 text-glow-cyan" style={{ color: '#00E5FF' }}>
-                          {formulation.followup_plan.review_weeks}
-                        </p>
-                        <p className="font-data text-lg tracking-widest" style={{ color: 'rgba(0,229,255,0.6)' }}>WEEKS</p>
-                        <p className="font-body text-sm mt-3" style={{ color: 'var(--text-mid)' }}>
-                          {formulation.followup_plan.review_date}
+                <div className="relative bracket rounded-2xl overflow-hidden"
+                  style={{ background: 'rgba(9,18,32,0.95)', border: '1px solid rgba(123,47,247,0.15)' }}>
+
+                  {/* Header */}
+                  <div className="px-6 py-4 sm:px-8 sm:py-5"
+                    style={{ background: 'linear-gradient(135deg, rgba(123,47,247,0.08), rgba(0,229,255,0.04))', borderBottom: '1px solid rgba(123,47,247,0.10)' }}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-title text-lg sm:text-xl font-bold tracking-wide" style={{ color: '#7B2FF7' }}>
+                          随访管理计划
+                        </h3>
+                        <p className="font-data text-xs mt-1 tracking-wider" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
+                          FOLLOW-UP PLAN · 首次复查 {formulation.followup_plan.review_weeks} 周
                         </p>
                       </div>
-                      <div className="rounded-xl p-5"
-                        style={{ background: 'rgba(3,7,18,0.6)', border: '1px solid rgba(0,229,255,0.08)' }}>
-                        <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>EXPECTED OUTCOME</p>
-                        <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.75 }}>
+                      <div className="text-right">
+                        <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>WEEKS</p>
+                        <p className="font-title text-2xl font-black" style={{ color: '#7B2FF7' }}>{formulation.followup_plan.review_weeks}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-6 py-5 sm:px-8 sm:py-6 space-y-5">
+                    {/* Review schedule */}
+                    <div className="flex items-center gap-5 rounded-xl p-5"
+                      style={{ background: 'rgba(3,7,18,0.5)', border: '1px solid rgba(123,47,247,0.12)' }}>
+                      <div className="text-center flex-shrink-0" style={{ minWidth: 60 }}>
+                        <p className="font-title text-3xl font-black" style={{ color: '#7B2FF7' }}>{formulation.followup_plan.review_weeks}</p>
+                        <p className="font-data text-xs tracking-widest" style={{ color: 'rgba(123,47,247,0.6)' }}>WEEKS</p>
+                      </div>
+                      <div className="h-12 w-px flex-shrink-0" style={{ background: 'rgba(123,47,247,0.2)' }} />
+                      <div>
+                        <p className="font-body text-sm font-semibold mb-1" style={{ color: 'var(--text-hi)' }}>
+                          首次复查日期：{formulation.followup_plan.review_date}
+                        </p>
+                        <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.6 }}>
                           {formulation.followup_plan.expected_outcome}
                         </p>
                       </div>
                     </div>
-                    <ListBlock label="复查项目" items={formulation.followup_plan.items_to_check} color="#7B2FF7" />
+
+                    {/* Check items */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(123,47,247,0.2), transparent)' }} />
+                        <span className="font-title text-xs tracking-[0.2em]" style={{ color: 'var(--text-dim)' }}>复查项目</span>
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(123,47,247,0.2), transparent)' }} />
+                      </div>
+                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(123,47,247,0.08)' }}>
+                        {formulation.followup_plan.items_to_check.map((item, i) => (
+                          <div key={i} className="flex items-center gap-3 px-5 py-3"
+                            style={{
+                              background: i % 2 === 0 ? 'rgba(3,7,18,0.5)' : 'rgba(3,7,18,0.3)',
+                              borderBottom: i < formulation.followup_plan.items_to_check.length - 1 ? '1px solid rgba(123,47,247,0.05)' : 'none',
+                            }}>
+                            <span className="font-data text-xs w-5 text-center flex-shrink-0" style={{ color: '#7B2FF7' }}>{i + 1}</span>
+                            <span className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </motion.div>
           </AnimatePresence>
+        </motion.div>
+
+        {/* ── Expert Video Section (bottom) ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="relative bracket rounded-2xl mt-8 no-print"
+          style={{
+            background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.85))',
+            border: '1px solid rgba(123,47,247,0.15)',
+            padding: '24px',
+          }}
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(123,47,247,0.15)', border: '1px solid rgba(123,47,247,0.3)' }}>
+              <span style={{ fontSize: 16 }}>🎬</span>
+            </div>
+            <div>
+              <h3 className="font-title text-sm font-semibold tracking-wider" style={{ color: 'var(--text-hi)' }}>专家视频解读</h3>
+              <p className="font-data text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>EXPERT VIDEO · 了解脂肪酸干预原理</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { title: '平衡脂肪谱·改造免疫代谢失衡体质', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/20250517.mp4' },
+              { title: '利用细胞再生·调整脂代谢失衡体质', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/050429.mp4' },
+              { title: '基于大数据·精准营养干预', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/zf.mp4' },
+              { title: '脂均衡营养·控制三高', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/zjhkzsg.mp4' },
+            ].map((video, i) => (
+              <a
+                key={i}
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl p-4 transition-all duration-300 block"
+                style={{
+                  background: 'rgba(3,7,18,0.6)',
+                  border: '1px solid rgba(123,47,247,0.12)',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.4)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(123,47,247,0.15)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto"
+                  style={{ background: 'rgba(123,47,247,0.12)', border: '1px solid rgba(123,47,247,0.25)' }}>
+                  <span style={{ fontSize: 18 }}>▶</span>
+                </div>
+                <p className="font-body text-xs font-semibold text-center leading-snug mb-1" style={{ color: 'var(--text-hi)', lineHeight: 1.4 }}>
+                  {video.title}
+                </p>
+                <p className="font-data text-xs text-center" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
+                  {video.speaker}
+                </p>
+              </a>
+            ))}
+          </div>
         </motion.div>
 
         {/* Medical Disclaimer + Footer */}
@@ -451,110 +620,6 @@ export default function ReportPage({ result, onRestart }: Props) {
         </div>
       </div>
     </div>
-  );
-}
-
-function ProductCard({ product, palette, expanded, onToggle }: { product: any; palette: ReturnType<typeof productPalette>; expanded: boolean; onToggle: () => void }) {
-  return (
-    <motion.div
-      layout
-      onClick={onToggle}
-      className="relative bracket rounded-2xl p-5 sm:p-6 cursor-pointer transition-all duration-300"
-      style={{
-        background: `linear-gradient(135deg, ${palette.bg}, rgba(9,18,32,0.9))`,
-        border: `1px solid ${palette.border}`,
-        boxShadow: expanded ? `0 0 30px ${palette.glow}` : 'none',
-      }}
-      whileHover={{ scale: 1.015, boxShadow: `0 0 25px ${palette.glow}` }}
-    >
-      {/* Header: name + badge on same row */}
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <h3 className="font-body text-base font-bold tracking-wide leading-tight" style={{ color: 'var(--text-hi)' }}>
-          {product.product_name}
-        </h3>
-        {product.category === 'core'
-          ? <span className="flex-shrink-0 font-data text-xs tracking-wider px-2 py-1 rounded-md"
-              style={{ background: `${palette.color}18`, color: palette.color, border: `1px solid ${palette.color}30` }}>CORE</span>
-          : <span className="flex-shrink-0 font-data text-xs tracking-wider px-2 py-1 rounded-md"
-              style={{ background: 'rgba(255,184,0,0.12)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.3)' }}>COND</span>
-        }
-      </div>
-
-      {/* Dose */}
-      <div className="mb-4">
-        <p className="font-data text-xl sm:text-2xl font-bold leading-none mb-1"
-          style={{ color: palette.color, textShadow: `0 0 20px ${palette.glow}`, letterSpacing: '0.04em' }}>
-          {product.dose_per_serving}
-        </p>
-        <p className="font-body text-sm" style={{ color: 'var(--text-mid)', letterSpacing: '0.05em' }}>
-          {product.frequency}
-          <span className="mx-2 opacity-40">·</span>
-          {product.duration}
-        </p>
-      </div>
-
-      {/* Indication */}
-      <p className="font-body leading-relaxed mb-4" style={{ color: 'var(--text-mid)', lineHeight: 1.8, fontSize: 14 }}>
-        {product.indication}
-      </p>
-
-      {/* Evidence tags */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {product.evidence.map((e: any) => (
-          <span key={e.citation_id}
-            className="font-data text-xs px-2.5 py-1 rounded-lg tracking-wider"
-            style={{ background: `${palette.color}12`, color: palette.color, border: `1px solid ${palette.color}25` }}>
-            {e.citation_id}
-          </span>
-        ))}
-      </div>
-
-      {/* Expanded evidence */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="pt-4 space-y-4" style={{ borderTop: `1px solid ${palette.border}` }}>
-              {product.evidence.map((e: any) => (
-                <div key={e.citation_id} className="rounded-xl p-4"
-                  style={{ background: 'rgba(3,7,18,0.6)', border: `1px solid ${palette.color}15` }}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="font-data text-xs font-bold tracking-wider px-2 py-0.5 rounded"
-                      style={{ background: `${palette.color}18`, color: palette.color }}>
-                      {e.citation_id}
-                    </span>
-                    <span className="font-body text-xs font-semibold" style={{ color: 'var(--text-hi)' }}>{e.citation_label}</span>
-                  </div>
-                  <p className="font-body text-sm leading-relaxed mb-1.5" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>
-                    {e.statement}
-                  </p>
-                  <p className="font-data text-xs italic" style={{ color: 'var(--text-dim)' }}>{e.source}</p>
-                </div>
-              ))}
-              {product.warnings?.length > 0 && (
-                <div className="rounded-xl p-4" style={{ background: 'rgba(255,184,0,0.05)', border: '1px solid rgba(255,184,0,0.2)' }}>
-                  {product.warnings.map((w: string, i: number) => (
-                    <p key={i} className="font-body text-sm" style={{ color: '#FFB800' }}>⚠&ensp;{w}</p>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Toggle hint */}
-      <div className="flex items-center gap-2 mt-2">
-        <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, ${palette.border}, transparent)` }} />
-        <span className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>
-          {expanded ? '收起 ↑' : '查看循证依据 ↓'}
-        </span>
-      </div>
-    </motion.div>
   );
 }
 
