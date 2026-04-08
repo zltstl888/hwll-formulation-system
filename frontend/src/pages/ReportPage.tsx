@@ -160,6 +160,63 @@ export default function ReportPage({ result, onRestart }: Props) {
           </div>
         </motion.div>
 
+        {/* ── Expert Video Section ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative bracket rounded-2xl mb-8 no-print"
+          style={{
+            background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.85))',
+            border: '1px solid rgba(123,47,247,0.15)',
+            padding: '24px',
+          }}
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(123,47,247,0.15)', border: '1px solid rgba(123,47,247,0.3)' }}>
+              <span style={{ fontSize: 16 }}>🎬</span>
+            </div>
+            <div>
+              <h3 className="font-title text-sm font-semibold tracking-wider" style={{ color: 'var(--text-hi)' }}>专家视频解读</h3>
+              <p className="font-data text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>EXPERT VIDEO · 了解脂肪酸干预原理</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { title: '平衡脂肪谱·改造免疫代谢失衡体质', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/20250517.mp4' },
+              { title: '利用细胞再生·调整脂代谢失衡体质', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/050429.mp4' },
+              { title: '基于大数据·精准营养干预', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/zf.mp4' },
+              { title: '脂均衡营养·控制三高', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/zjhkzsg.mp4' },
+            ].map((video, i) => (
+              <a
+                key={i}
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl p-4 transition-all duration-300 block"
+                style={{
+                  background: 'rgba(3,7,18,0.6)',
+                  border: '1px solid rgba(123,47,247,0.12)',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.4)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(123,47,247,0.15)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto"
+                  style={{ background: 'rgba(123,47,247,0.12)', border: '1px solid rgba(123,47,247,0.25)' }}>
+                  <span style={{ fontSize: 18 }}>▶</span>
+                </div>
+                <p className="font-body text-xs font-semibold text-center leading-snug mb-1" style={{ color: 'var(--text-hi)', lineHeight: 1.4 }}>
+                  {video.title}
+                </p>
+                <p className="font-data text-xs text-center" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
+                  {video.speaker}
+                </p>
+              </a>
+            ))}
+          </div>
+        </motion.div>
+
         {/* ── Five-Dimension Overview ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -292,7 +349,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                     { label: '关键原则', items: formulation.diet_intervention.key_points, color: '#00E5FF' },
                     { label: '建议增加', items: formulation.diet_intervention.foods_to_increase, color: '#00FF94' },
                     { label: '建议减少', items: formulation.diet_intervention.foods_to_reduce, color: '#FF2D55' },
-                  ]}
+                  ].filter(s => s.items.length > 0)}
                 />
               )}
 
@@ -440,19 +497,6 @@ function ProductCard({ product, palette, expanded, onToggle }: { product: any; p
       <p className="font-body leading-relaxed mb-4" style={{ color: 'var(--text-mid)', lineHeight: 1.8, fontSize: 14 }}>
         {product.indication}
       </p>
-
-      {/* Mechanism (collapsible per algorithm guide 7.3) */}
-      {product.mechanism && (
-        <div className="rounded-lg p-3 mb-4"
-          style={{ background: 'rgba(3,7,18,0.5)', border: `1px solid ${palette.color}12` }}>
-          <p className="font-data text-xs tracking-wider mb-1.5" style={{ color: palette.color, letterSpacing: '0.12em' }}>
-            作用机制
-          </p>
-          <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>
-            {product.mechanism}
-          </p>
-        </div>
-      )}
 
       {/* Evidence tags */}
       <div className="flex flex-wrap gap-2 mb-4">

@@ -96,7 +96,8 @@ app.post('/api/generate', async (req, res) => {
       hdl_c: lipidValues.hdl_c ?? null,
     };
 
-    const plan = generateFormulation(patient, report);
+    const dietaryRecommendations: string[] = lipidValues.dietary_recommendations || [];
+    const plan = generateFormulation(patient, report, dietaryRecommendations);
     res.json({ success: true, data: plan });
   } catch (err: any) {
     console.error('配方生成失败:', err);

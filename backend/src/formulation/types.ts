@@ -62,7 +62,7 @@ export interface ProductRecommendation {
   dose_per_serving: string;  // 单次剂量
   frequency: string;         // 频次
   duration: string;          // 疗程
-  mechanism: string;         // 作用机制
+  mechanism?: string;        // 作用机制（不在报告中展示，仅数据层保留）
   indication: string;        // 推荐理由（结合患者数据）
   evidence: EvidenceCitation[];
   warnings: string[];

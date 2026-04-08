@@ -140,7 +140,7 @@ function buildProducts(
     const ratio = report.aa_epa_ratio;
     const epa = report.epa;
     const indication = ratio !== null
-      ? `患者AA:EPA=${ratio}（参考值1-3），EPA=${epa ?? 'N/A'}%（参考值3-9%），需补充EPA${level === 'critical' ? '≥1800mg/d' : level === 'moderate' ? '≥1200mg/d' : level === 'mild' ? '≥600mg/d' : '300mg/d维持'}，达到指南推荐有效剂量阈值`
+      ? `患者AA:EPA=${ratio}（参考值1-3），EPA=${epa ?? 'N/A'}%（参考值3-9%），需补充EPA${level === 'critical' ? '≥3000mg/d' : level === 'moderate' ? '≥3000mg/d' : level === 'mild' ? '≥1800mg/d' : '600mg/d维持'}，达到指南推荐有效剂量阈值`
       : '脂肪酸检测提示需要补充Omega-3';
     products.push({
       product_id: catalog.product_id,
@@ -150,7 +150,6 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      mechanism: catalog.mechanism,
       indication,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
@@ -169,7 +168,6 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      mechanism: catalog.mechanism,
       indication: `${RISK_LEVEL_LABELS[level]}脂肪酸失衡通常伴随显著氧化应激，GSH作为细胞内核心抗氧化物，与EPA鱼油形成协同抗炎体系。参照〔GSH-BMC-2017〕有效剂量300mg/d`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
@@ -188,7 +186,6 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      mechanism: catalog.mechanism,
       indication: `脂肪酸失衡患者HDL水平普遍偏低，益生菌通过ABCA1肠道通路恢复HDL3分泌，与EPA协同改善心血管保护功能。参照〔益生菌HDL3-iMeta-2025〕：6个月干预，CVD死亡0例（对照组6例）`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
@@ -214,7 +211,6 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      mechanism: catalog.mechanism,
       indication: `血脂指标异常触发：${triggers.join('；')}。纳豆激酶+红曲莫纳可林K协同降低LDL-C和TG。参照〔纳豆激酶RCT-2019〕n=1062，26周显著降脂`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
@@ -233,7 +229,6 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      mechanism: catalog.mechanism,
       indication: `患者存在肿瘤/术后/营养不良状态（${patient.diagnosis || '见病史记录'}），短肽肠内营养改善蛋白质合成，维持白蛋白水平。参照〔免疫营养共识2023〕`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
@@ -252,7 +247,6 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      mechanism: catalog.mechanism,
       indication: `患者存在免疫/炎症相关状态（${patient.diagnosis || '见诊断记录'}），接骨木莓+专利益生菌调节免疫功能，抑制慢性炎症`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
@@ -266,7 +260,19 @@ function buildProducts(
 // 5. 饮食干预方案
 // 参照〔血脂共识2023〕地中海膳食（同意比例98.61%）
 // ─────────────────────────────────────────────
-function buildDietPlan(level: RiskLevel): DietIntervention {
+function buildDietPlan(level: RiskLevel, dietaryRecommendations: string[] = []): DietIntervention {
+  // 优先使用检测报告中的精准营养建议原文（合规要求：不发散不创新）
+  if (dietaryRecommendations.length > 0) {
+    return {
+      pattern: '精准营养建议（基于脂肪谱检测报告）',
+      key_points: dietaryRecommendations,
+      foods_to_increase: [],
+      foods_to_reduce: [],
+      evidence: '以上建议直接引用自脂谱生物科技检测报告"综合营养建议"，基于患者个体脂肪酸谱数据精准生成',
+    };
+  }
+
+  // Fallback：检测报告未提供营养建议时，使用算法生成
   const isSevere = level === 'critical' || level === 'moderate';
   return {
     pattern: isSevere ? '地中海膳食模式（Mediterranean Diet）' : '低脂均衡膳食',
@@ -375,13 +381,14 @@ function buildFollowupPlan(level: RiskLevel): FollowupPlan {
 // ─────────────────────────────────────────────
 export function generateFormulation(
   patient: PatientContext,
-  report: LipidProfileReport
+  report: LipidProfileReport,
+  dietaryRecommendations: string[] = []
 ): FormulationResult {
   const level = classifyRisk(report);
   const levelLabel = RISK_LEVEL_LABELS[level];
   const riskSummary = buildRiskSummary(report, level);
   const products = buildProducts(level, report, patient);
-  const dietPlan = buildDietPlan(level);
+  const dietPlan = buildDietPlan(level, dietaryRecommendations);
   const exercisePlan = buildExercisePlan(level, patient.age);
   const lifestylePlan = buildLifestylePlan(level);
   const followupPlan = buildFollowupPlan(level);

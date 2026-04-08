@@ -35,7 +35,7 @@ export interface ProductRecommendation {
   dose_per_serving: string;
   frequency: string;
   duration: string;
-  mechanism: string;
+  mechanism?: string;
   indication: string;
   evidence: EvidenceCitation[];
   warnings: string[];
