@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import RiskGauge from '../components/RiskGauge';
 import type { FormulationResult } from '../types';
 
@@ -226,15 +226,10 @@ export default function ReportPage({ result, onRestart }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
-            >
-              {activeTab === '产品方案' && (() => {
+          {/* All sections rendered; screen shows activeTab only, print shows all */}
+          <div className="space-y-8">
+            <div className={activeTab !== '产品方案' ? 'hidden print:block' : ''}>
+              {(() => {
                 const allProducts = formulation.products;
                 const durationWeeks = allProducts.length > 0 ? parseDurationWeeks(allProducts[0].duration) : 12;
 
@@ -346,8 +341,10 @@ export default function ReportPage({ result, onRestart }: Props) {
                 );
               })()}
 
-              {activeTab === '膳食干预' && (
-                <InterventionPanel
+            </div>
+
+            <div className={activeTab !== '膳食干预' ? 'hidden print:block' : ''}>
+              <InterventionPanel
                   title={formulation.diet_intervention.pattern}
                   sections={[
                     { label: '关键原则', items: formulation.diet_intervention.key_points, color: '#0D9488' },
@@ -355,9 +352,9 @@ export default function ReportPage({ result, onRestart }: Props) {
                     { label: '建议减少', items: formulation.diet_intervention.foods_to_reduce, color: '#DC2626' },
                   ].filter(s => s.items.length > 0)}
                 />
-              )}
+            </div>
 
-              {activeTab === '运动处方' && (
+            <div className={activeTab !== '运动处方' ? 'hidden print:block' : ''}>
                 <div className="relative rounded-2xl p-5 sm:p-8"
                   style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
                   <h3 className="font-title text-lg font-bold mb-8 tracking-wide" style={{ color: 'var(--text-hi)' }}>
@@ -384,16 +381,16 @@ export default function ReportPage({ result, onRestart }: Props) {
                     <ListBlock label="注意事项" items={formulation.exercise_prescription.precautions} color="#D97706" />
                   )}
                 </div>
-              )}
+            </div>
 
-              {activeTab === '生活方式' && (
+            <div className={activeTab !== '生活方式' ? 'hidden print:block' : ''}>
                 <div className="relative rounded-2xl p-5 sm:p-8"
                   style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
                   <ListBlock label="干预要点" items={formulation.lifestyle_intervention.key_points} color="#6366F1" />
                 </div>
-              )}
+            </div>
 
-              {activeTab === '随访计划' && (
+            <div className={activeTab !== '随访计划' ? 'hidden print:block' : ''}>
                 <div className="relative rounded-2xl overflow-hidden"
                   style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
 
@@ -457,13 +454,12 @@ export default function ReportPage({ result, onRestart }: Props) {
                     </div>
                   </div>
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+            </div>
+          </div>
         </motion.div>
 
         {/* Medical Disclaimer + Footer */}
-        <div className="mt-14 no-print">
+        <div className="mt-14">
           <div className="h-px mb-6" style={{ background: 'linear-gradient(to right, transparent, rgba(13,148,136,0.15), transparent)' }} />
 
           {/* Disclaimer per algorithm guide 6.2 */}

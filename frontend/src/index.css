@@ -89,5 +89,8 @@ input, textarea, select { font-size: max(16px, 1em); }
 /* ── Print ── */
 @media print {
   .no-print { display: none !important; }
+  .hidden.print\:block { display: block !important; }
   body { background: white !important; color: #111 !important; }
+  /* 打印时避免分页切断卡片 */
+  .rounded-2xl, .rounded-xl { break-inside: avoid; }
 }
