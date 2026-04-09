@@ -63,7 +63,7 @@ export default function ReportPage({ result, onRestart }: Props) {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] pointer-events-none"
         style={{ background: `radial-gradient(ellipse, rgba(13,148,136,0.06) 0%, transparent 70%)`, filter: 'blur(50px)' }} />
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-[1400px] mx-auto">
 
         {/* ── Top bar ── */}
         <div className="flex items-center justify-between mb-8 sm:mb-12 no-print">
@@ -220,37 +220,12 @@ export default function ReportPage({ result, onRestart }: Props) {
           ))}
         </motion.div>
 
-        {/* ── Tab Navigation (detailed) ── */}
+        {/* ── Tab Content ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-
-          <div className="flex gap-1 mb-6 p-1.5 rounded-2xl no-print overflow-x-auto"
-            style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', WebkitOverflowScrolling: 'touch' }}>
-            {TABS.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className="flex-none sm:flex-1 py-3 px-4 sm:px-2 rounded-xl font-title text-sm font-semibold tracking-wider transition-all duration-300 whitespace-nowrap"
-                style={{
-                  background: activeTab === tab
-                    ? 'linear-gradient(135deg, rgba(13,148,136,0.10), rgba(99,102,241,0.08))'
-                    : 'transparent',
-                  border: `1px solid ${activeTab === tab ? 'rgba(13,148,136,0.25)' : 'transparent'}`,
-                  color: activeTab === tab ? '#0D9488' : 'var(--text-dim)',
-                  boxShadow: activeTab === tab ? '0 1px 3px rgba(13,148,136,0.10)' : 'none',
-                  letterSpacing: '0.12em',
-                  borderBottom: activeTab === tab ? '2px solid rgba(13,148,136,0.5)' : '2px solid transparent',
-                }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* ── Tab Content ── */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
