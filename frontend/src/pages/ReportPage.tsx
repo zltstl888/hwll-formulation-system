@@ -503,6 +503,10 @@ function InterventionPanel({ title, sections }: {
   );
 }
 
+function stripLeadingNumber(text: string): string {
+  return text.replace(/^【\d+】\s*/, '').replace(/^[\[（(]\d+[\]）)][.、\s]*/, '');
+}
+
 function ListBlock({ label, items, color }: { label: string; items: string[]; color: string }) {
   return (
     <div className="rounded-xl p-5" style={{ background: '#F8FAFC', border: `1px solid ${color}15` }}>
@@ -513,8 +517,10 @@ function ListBlock({ label, items, color }: { label: string; items: string[]; co
       <ul className="space-y-3">
         {items.map((item, i) => (
           <li key={i} className="flex items-start gap-3">
-            <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
-            <span className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>{item}</span>
+            <span className="font-data text-xs w-5 text-center flex-shrink-0 mt-0.5" style={{ color, fontWeight: 600 }}>
+              {i + 1}
+            </span>
+            <span className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-mid)', lineHeight: 1.7 }}>{stripLeadingNumber(item)}</span>
           </li>
         ))}
       </ul>
