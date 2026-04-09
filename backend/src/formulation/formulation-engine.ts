@@ -137,11 +137,6 @@ function buildProducts(
   {
     const catalog = getProductById('epa_fish_oil')!;
     const dose = catalog.doses[level]!;
-    const ratio = report.aa_epa_ratio;
-    const epa = report.epa;
-    const indication = ratio !== null
-      ? `患者AA:EPA=${ratio}（参考值1-3），EPA=${epa ?? 'N/A'}%（参考值3-9%），需补充EPA${level === 'critical' ? '≥3000mg/d' : level === 'moderate' ? '≥3000mg/d' : level === 'mild' ? '≥1800mg/d' : '600mg/d维持'}，达到指南推荐有效剂量阈值`
-      : '脂肪酸检测提示需要补充Omega-3';
     products.push({
       product_id: catalog.product_id,
       product_name: catalog.product_name,
@@ -150,7 +145,7 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      indication,
+      indication: '补充高纯度EPA，改善脂肪酸平衡，降低慢性炎症风险',
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
     });
@@ -168,7 +163,7 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      indication: `${RISK_LEVEL_LABELS[level]}脂肪酸失衡通常伴随显著氧化应激，GSH作为细胞内核心抗氧化物，与EPA鱼油形成协同抗炎体系。参照〔GSH-BMC-2017〕有效剂量300mg/d`,
+      indication: '抗氧化支持，与EPA协同改善炎症指标',
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
     });
@@ -186,7 +181,7 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      indication: `脂肪酸失衡患者HDL水平普遍偏低，益生菌通过ABCA1肠道通路恢复HDL3分泌，与EPA协同改善心血管保护功能。参照〔益生菌HDL3-iMeta-2025〕：6个月干预，CVD死亡0例（对照组6例）`,
+      indication: '调节肠道微生态，改善脂代谢和免疫功能',
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
     });
@@ -211,7 +206,7 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      indication: `血脂指标异常触发：${triggers.join('；')}。纳豆激酶+红曲莫纳可林K协同降低LDL-C和TG。参照〔纳豆激酶RCT-2019〕n=1062，26周显著降脂`,
+      indication: `血脂指标异常：${triggers.join('；')}，辅助降低血脂水平`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
     });
@@ -229,7 +224,7 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      indication: `患者存在肿瘤/术后/营养不良状态（${patient.diagnosis || '见病史记录'}），短肽肠内营养改善蛋白质合成，维持白蛋白水平。参照〔免疫营养共识2023〕`,
+      indication: `营养支持需求（${patient.diagnosis || '见病史'}），改善蛋白质合成和营养状态`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
     });
@@ -247,7 +242,7 @@ function buildProducts(
       dose_per_serving: dose.dose_per_serving,
       frequency: dose.frequency,
       duration: dose.duration,
-      indication: `患者存在免疫/炎症相关状态（${patient.diagnosis || '见诊断记录'}），接骨木莓+专利益生菌调节免疫功能，抑制慢性炎症`,
+      indication: `免疫/炎症调节需求（${patient.diagnosis || '见诊断'}），调节免疫功能`,
       evidence: getEvidence(...dose.evidence_ids),
       warnings: checkContraindications(catalog.product_id, patient),
     });
@@ -296,7 +291,7 @@ function buildDietPlan(level: RiskLevel, dietaryRecommendations: string[] = []):
     foods_to_reduce: isSevere
       ? ['大豆油/葵花籽油/玉米油', '精白米面', '红肉（牛羊猪肉）', '加工食品', '含糖饮料']
       : ['油炸食品', '高脂加工食品', '含糖饮料'],
-    evidence: '参照〔血脂共识2023〕：地中海膳食模式与心血管保护（专家同意比例98.61%）；减少Omega-6摄入源头（大豆油替换）可从根本上改善AA:EPA比值',
+    evidence: '参照刘英华主任团队专家共识：地中海膳食模式与心血管保护',
   };
 }
 
@@ -304,21 +299,22 @@ function buildDietPlan(level: RiskLevel, dietaryRecommendations: string[] = []):
 // 6. 运动处方
 // ─────────────────────────────────────────────
 function buildExercisePlan(level: RiskLevel, age: number | null): ExercisePrescription {
-  const maxHR = age ? (220 - age) : 170;
   const isSevere = level === 'critical' || level === 'moderate';
   return {
-    type: isSevere ? '有氧运动为主，逐步增加抗阻训练' : '中等强度有氧运动',
+    type: isSevere ? '安全有氧运动为主（八段锦、快走、太极拳）' : '适量有氧运动（快走、八段锦、太极拳）',
     frequency: isSevere ? '每周5次' : '每周3-5次',
     duration: isSevere ? '每次30-40分钟（前4周每次20分钟，逐步增加）' : '每次30分钟',
     intensity: isSevere
-      ? `靶心率${Math.round(maxHR * 0.6)}-${Math.round(maxHR * 0.7)}次/分（最大心率${maxHR}的60%-70%），8周后可适当提升强度`
-      : `靶心率${Math.round(maxHR * 0.5)}-${Math.round(maxHR * 0.65)}次/分（最大心率的50%-65%）`,
+      ? '以微微出汗、能正常说话为宜，循序渐进，不追求高强度'
+      : '中低强度，以身体舒适为准',
     precautions: [
       '运动中出现胸痛、心悸、严重气短立即停止并就医',
       '每次运动前后各5分钟拉伸热身/放松',
-      ...(isSevere ? ['前4周以快走为主，避免剧烈竞技性运动', '运动前后监测血压'] : []),
+      '推荐八段锦、太极拳等传统功法，安全性高，适合各年龄段',
+      '以快走、散步为主要有氧方式，避免剧烈竞技性运动',
+      ...(isSevere ? ['运动前后监测血压'] : []),
     ],
-    evidence: '参照〔血脂共识2023〕：中等强度有氧运动有助于提升HDL-C、降低TG；〔Omega3Q10-RCT-2026〕验证：运动联合Omega-3干预协同效果',
+    evidence: '参照刘英华主任团队专家共识：适量运动有助于改善脂代谢',
   };
 }
 
@@ -340,28 +336,43 @@ function buildLifestylePlan(level: RiskLevel): LifestyleIntervention {
         '保持规律作息和适量运动',
       ]),
     ],
-    evidence: '参照〔血脂共识2023〕生活方式干预章节；〔免疫营养共识2023〕：睡眠与免疫-代谢互作机制',
+    evidence: '参照刘英华主任团队专家共识：生活方式干预',
   };
 }
 
 // ─────────────────────────────────────────────
 // 8. 随访方案
-// 参照〔Omega3Q10-RCT-2026〕12周验证周期
+// 红细胞代谢周期120天，首次复查以此为基准
+// 参照刘英华主任团队专家共识
 // ─────────────────────────────────────────────
-function buildFollowupPlan(level: RiskLevel): FollowupPlan {
-  const reviewWeeks = level === 'critical' || level === 'moderate' ? 12 : level === 'mild' ? 16 : 24;
+function buildFollowupPlan(level: RiskLevel, report?: LipidProfileReport): FollowupPlan {
+  // 严重/中度：120天（红细胞代谢周期），轻度：150天，正常：180天
+  const reviewDays = level === 'critical' || level === 'moderate' ? 120 : level === 'mild' ? 150 : 180;
+  const reviewWeeks = Math.round(reviewDays / 7);
   const reviewDate = new Date();
-  reviewDate.setDate(reviewDate.getDate() + reviewWeeks * 7);
+  reviewDate.setDate(reviewDate.getDate() + reviewDays);
 
-  const expected: Record<RiskLevel, string> = {
-    critical: '参照〔Omega3Q10-RCT-2026〕12周RCT结果：AA:EPA比值预计降低30-50%，Omega-3指数升至5-7%；〔益生菌HDL3-iMeta-2025〕：HDL3显著恢复，炎症指标改善',
-    moderate: '12周干预后：AA:EPA比值预计降低20-40%，Omega-3指数升至6-8%；脂代谢相关症状改善',
-    mild: '16周后：Omega-3指数达标（≥8%），AA:EPA比值趋于正常范围（≤5）',
-    normal: '24周后维持性复查，确认脂肪酸谱持续稳定',
-  };
+  // M12: 根据基线AA:EPA值动态生成预期效果
+  const aaEpa = report?.aa_epa_ratio;
+  let expectedOutcome: string;
+
+  if (level === 'normal') {
+    expectedOutcome = `${reviewDays}天后维持性复查，确认脂肪酸谱持续稳定`;
+  } else if (aaEpa !== null && aaEpa !== undefined) {
+    if (aaEpa >= 50) {
+      expectedOutcome = `严格执行营养干预${reviewDays}天后，AA:EPA可显著降低，目标恢复至正常范围（1-3）。同时Omega-3指数预计明显回升，炎症指标改善。参照刘英华主任团队专家共识`;
+    } else if (aaEpa >= 10) {
+      expectedOutcome = `${reviewDays}天干预后，AA:EPA预计可降低至5以下，Omega-3指数升至≥8%，脂代谢相关症状改善。参照刘英华主任团队专家共识`;
+    } else {
+      expectedOutcome = `${reviewDays}天后，Omega-3指数预计达标（≥8%），AA:EPA比值趋于正常范围。参照刘英华主任团队专家共识`;
+    }
+  } else {
+    expectedOutcome = `${reviewDays}天干预后复查脂肪酸谱，评估干预效果。参照刘英华主任团队专家共识`;
+  }
 
   return {
     review_weeks: reviewWeeks,
+    review_days: reviewDays,
     review_date: reviewDate.toISOString().split('T')[0],
     items_to_check: [
       '脂肪谱全套（AA:EPA、EPA%、Omega-3指数）',
@@ -372,7 +383,7 @@ function buildFollowupPlan(level: RiskLevel): FollowupPlan {
       ] : []),
       '评估产品耐受性和依从性',
     ],
-    expected_outcome: expected[level],
+    expected_outcome: expectedOutcome,
   };
 }
 
@@ -391,14 +402,14 @@ export function generateFormulation(
   const dietPlan = buildDietPlan(level, dietaryRecommendations);
   const exercisePlan = buildExercisePlan(level, patient.age);
   const lifestylePlan = buildLifestylePlan(level);
-  const followupPlan = buildFollowupPlan(level);
+  const followupPlan = buildFollowupPlan(level, report);
 
   const reportDate = report.report_date || new Date().toISOString().split('T')[0];
   const planName = `${levelLabel}级脂肪酸失衡干预方案（${reportDate}）`;
 
   const goals = level === 'normal'
     ? 'Omega-3指数维持≥8%，AA:EPA维持≤3，定期复查跟踪'
-    : `12-16周内AA:EPA降至10以下（目标≤3），Omega-3指数升至≥8%，改善心血管代谢风险。参照〔Omega3Q10-RCT-2026〕及〔益生菌HDL3-iMeta-2025〕干预目标`;
+    : `120天内AA:EPA降至10以下（目标≤3），Omega-3指数升至≥8%，改善心血管代谢风险。参照刘英华主任团队专家共识`;
 
   const summary = [
     `基于脂肪谱分析（AA:EPA=${report.aa_epa_ratio ?? 'N/A'}，EPA=${report.epa ?? 'N/A'}%，Omega-3指数=${report.omega3_index ?? 'N/A'}%），`,
@@ -407,7 +418,7 @@ export function generateFormulation(
     products.filter(p => p.category === 'conditional').length > 0
       ? `+${products.filter(p => p.category === 'conditional').length}种条件性产品`
       : '',
-    `。算法版本${FORMULATION_VERSION}，循证依据来源刘英华团队论文及相关指南。`,
+    `。算法版本${FORMULATION_VERSION}，参照刘英华主任团队专家共识。`,
   ].join('');
 
   const result: FormulationResult = {
@@ -596,14 +607,15 @@ export function generateGenericFormulation(
 
   // 随访计划：特别建议做脂肪谱检测
   const followupPlan: FollowupPlan = {
-    review_weeks: 12,
-    review_date: (() => { const d = new Date(); d.setDate(d.getDate() + 84); return d.toISOString().split('T')[0]; })(),
+    review_weeks: 17,
+    review_days: 120,
+    review_date: (() => { const d = new Date(); d.setDate(d.getDate() + 120); return d.toISOString().split('T')[0]; })(),
     items_to_check: [
       '★ 脂肪酸谱全套检测（AA:EPA、EPA%、Omega-3指数）— 强烈建议，可获取精准个性化配方',
       '常规血脂（TC、TG、LDL-C、HDL-C）',
       '评估产品耐受性和依从性',
     ],
-    expected_outcome: '12周基础营养支持后，预计整体炎症水平降低、肠道健康改善。完成脂肪酸谱检测后可升级为精准个性化方案。',
+    expected_outcome: '120天基础营养支持后，预计整体炎症水平降低、肠道健康改善。完成脂肪酸谱检测后可升级为精准个性化方案。',
   };
 
   // ── 风险摘要 ──

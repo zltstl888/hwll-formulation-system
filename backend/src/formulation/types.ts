@@ -137,6 +137,7 @@ export interface LifestyleIntervention {
 
 export interface FollowupPlan {
   review_weeks: number;
+  review_days: number;           // 复查天数（红细胞代谢周期120天）
   review_date: string;
   items_to_check: string[];
   expected_outcome: string;

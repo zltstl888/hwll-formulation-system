@@ -25,6 +25,8 @@ export interface PatientInfo {
   gender: string;
   diagnosis: string;
   medications: string;
+  reporting_doctor: string;
+  reviewing_doctor: string;
 }
 
 export interface ProductRecommendation {
@@ -87,6 +89,7 @@ export interface FormulationResult {
     };
     followup_plan: {
       review_weeks: number;
+      review_days?: number;
       review_date: string;
       items_to_check: string[];
       expected_outcome: string;

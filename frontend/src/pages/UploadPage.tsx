@@ -107,13 +107,13 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
   return (
     <div
       className="grid-bg min-h-screen relative flex flex-col items-center justify-center overflow-hidden"
-      style={{ padding: '3vh max(24px, 5vw)' }}
+      style={{ padding: '3vh max(24px, 5vw)', background: '#F8FAFC' }}
     >
-      {/* Ambient glows */}
+      {/* Ambient glows — softened for light theme */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
-        style={{ width: 600, height: 280, background: 'radial-gradient(ellipse, rgba(0,229,255,0.07) 0%, transparent 70%)', filter: 'blur(48px)' }} />
+        style={{ width: 600, height: 280, background: 'radial-gradient(ellipse, rgba(13,148,136,0.06) 0%, transparent 70%)', filter: 'blur(48px)' }} />
       <div className="absolute bottom-0 right-0 pointer-events-none"
-        style={{ width: 400, height: 400, background: 'radial-gradient(ellipse, rgba(123,47,247,0.06) 0%, transparent 70%)', filter: 'blur(56px)' }} />
+        style={{ width: 400, height: 400, background: 'radial-gradient(ellipse, rgba(99,102,241,0.05) 0%, transparent 70%)', filter: 'blur(56px)' }} />
 
       {/* ─── Main Column ─── */}
       <div className="relative z-10 flex flex-col items-center" style={{ width: '100%', maxWidth: 520 }}>
@@ -129,19 +129,16 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
           {/* Logo mark */}
           <div className="flex items-center justify-center" style={{ marginBottom: 18 }}>
             <div className="relative">
-              <div className="absolute rounded-full pulse-ring pointer-events-none"
-                style={{ inset: -7, border: '1px solid rgba(0,229,255,0.16)' }} />
               <div className="relative rounded-full flex items-center justify-center"
                 style={{
                   width: 90, height: 90,
-                  background: 'radial-gradient(circle, rgba(235,28,40,0.07) 0%, rgba(3,7,18,0.85) 70%)',
-                  border: '1px solid rgba(235,28,40,0.30)',
-                  boxShadow: '0 0 28px rgba(235,28,40,0.18), 0 0 60px rgba(235,28,40,0.06)',
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(0,0,0,0.10)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                 }}>
                 <img
                   src={LOGO_SRC}
                   alt="HWLL"
-                  className="flicker"
                   style={{ width: 82, height: 82, objectFit: 'contain' }}
                 />
               </div>
@@ -153,8 +150,8 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
             Hopkins Washington Life Medicine Lab
           </p>
 
-          <h1 className="font-title font-black text-glow-cyan"
-            style={{ color: '#00E5FF', fontSize: 'clamp(36px, 10vw, 46px)', lineHeight: 1.0, letterSpacing: '0.08em', marginBottom: 8 }}>
+          <h1 className="font-title font-black"
+            style={{ color: '#0D9488', fontSize: 'clamp(36px, 10vw, 46px)', lineHeight: 1.0, letterSpacing: '0.08em', marginBottom: 8 }}>
             HWLL
           </h1>
 
@@ -183,36 +180,33 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
               <motion.div
                 key="parsing"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="relative bracket rounded-2xl"
+                className="relative rounded-2xl"
                 style={{
                   padding: '44px 36px',
-                  background: 'linear-gradient(135deg, rgba(0,229,255,0.06), rgba(123,47,247,0.09))',
-                  border: '1px solid rgba(0,229,255,0.38)',
-                  boxShadow: '0 0 44px rgba(0,229,255,0.13)',
+                  background: 'rgba(13,148,136,0.04)',
+                  border: '1px solid rgba(13,148,136,0.3)',
+                  boxShadow: '0 2px 16px rgba(13,148,136,0.08)',
                 }}
               >
-                <div className="absolute inset-x-0 h-0.5 scan-beam pointer-events-none"
-                  style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.85), transparent)' }} />
-
                 {/* Percentage */}
                 <div className="flex justify-between items-baseline mb-4">
-                  <p className="font-title font-semibold text-glow-cyan"
-                    style={{ color: '#00E5FF', fontSize: 16, letterSpacing: '0.12em' }}>
+                  <p className="font-title font-semibold"
+                    style={{ color: '#0D9488', fontSize: 16, letterSpacing: '0.12em' }}>
                     AI 解析中
                   </p>
-                  <span className="font-data text-xl font-bold" style={{ color: '#00E5FF' }}>
+                  <span className="font-data text-xl font-bold" style={{ color: '#0D9488' }}>
                     {Math.round(progress)}%
                   </span>
                 </div>
 
                 {/* Progress bar */}
-                <div className="relative rounded-full overflow-hidden" style={{ height: 10, background: 'rgba(0,229,255,0.08)' }}>
+                <div className="relative rounded-full overflow-hidden" style={{ height: 10, background: 'rgba(13,148,136,0.08)' }}>
                   <div
                     className="absolute top-0 left-0 h-full rounded-full"
                     style={{
                       width: `${progress}%`,
-                      background: 'linear-gradient(to right, #00E5FF, #7B2FF7)',
-                      boxShadow: '0 0 12px rgba(0,229,255,0.6), 0 0 24px rgba(123,47,247,0.3)',
+                      background: 'linear-gradient(to right, #0D9488, #6366F1)',
+                      boxShadow: '0 0 8px rgba(13,148,136,0.3)',
                     }}
                   />
                 </div>
@@ -230,26 +224,21 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
               <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div
                   {...getRootProps()}
-                  className="relative bracket rounded-2xl text-center cursor-pointer transition-all duration-500"
+                  className="relative rounded-2xl text-center cursor-pointer transition-all duration-500"
                   style={{
                     padding: '46px 36px 42px',
                     background: isDragActive
-                      ? 'linear-gradient(135deg, rgba(0,229,255,0.10), rgba(123,47,247,0.12))'
+                      ? 'rgba(13,148,136,0.04)'
                       : status === 'error'
-                        ? 'rgba(255,45,85,0.04)'
-                        : 'rgba(9,18,32,0.88)',
-                    border: `1px solid ${isDragActive ? 'rgba(0,229,255,0.65)' : status === 'error' ? 'rgba(255,45,85,0.5)' : 'rgba(0,229,255,0.14)'}`,
+                        ? 'rgba(220,38,38,0.06)'
+                        : '#FFFFFF',
+                    border: `1px solid ${isDragActive ? 'rgba(13,148,136,0.5)' : status === 'error' ? 'rgba(220,38,38,0.4)' : 'rgba(0,0,0,0.08)'}`,
                     boxShadow: isDragActive
-                      ? '0 0 55px rgba(0,229,255,0.20), inset 0 0 28px rgba(0,229,255,0.05)'
-                      : '0 4px 36px rgba(0,0,0,0.42)',
+                      ? '0 2px 24px rgba(13,148,136,0.12), inset 0 0 16px rgba(13,148,136,0.03)'
+                      : '0 2px 16px rgba(0,0,0,0.06)',
                   }}
                 >
                   <input {...getInputProps()} />
-
-                  {isDragActive && (
-                    <div className="absolute inset-x-0 h-0.5 scan-beam pointer-events-none"
-                      style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.9), transparent)' }} />
-                  )}
 
                   {/* Icon */}
                   <div className="flex justify-center" style={{ marginBottom: 20 }}>
@@ -257,12 +246,12 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
                       <div className="rounded-full flex items-center justify-center transition-all duration-400"
                         style={{
                           width: 72, height: 72,
-                          background: isDragActive ? 'rgba(0,229,255,0.15)' : 'rgba(0,229,255,0.07)',
-                          border: `1px solid ${isDragActive ? 'rgba(0,229,255,0.55)' : 'rgba(0,229,255,0.22)'}`,
-                          boxShadow: isDragActive ? '0 0 30px rgba(0,229,255,0.28)' : '0 0 14px rgba(0,229,255,0.07)',
+                          background: isDragActive ? 'rgba(13,148,136,0.12)' : 'rgba(13,148,136,0.06)',
+                          border: `1px solid ${isDragActive ? 'rgba(13,148,136,0.45)' : 'rgba(13,148,136,0.18)'}`,
+                          boxShadow: isDragActive ? '0 2px 16px rgba(13,148,136,0.15)' : '0 1px 8px rgba(13,148,136,0.06)',
                         }}>
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
-                          stroke={isDragActive ? '#00E5FF' : 'rgba(0,229,255,0.6)'}
+                          stroke={isDragActive ? '#0D9488' : 'rgba(13,148,136,0.6)'}
                           strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                           <polyline points="17 8 12 3 7 8" />
@@ -273,7 +262,7 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
                   </div>
 
                   <p className="font-title font-semibold"
-                    style={{ color: isDragActive ? '#00E5FF' : 'var(--text-hi)', fontSize: 17, letterSpacing: '0.06em', marginBottom: 9 }}>
+                    style={{ color: isDragActive ? '#0D9488' : 'var(--text-hi)', fontSize: 17, letterSpacing: '0.06em', marginBottom: 9 }}>
                     {isDragActive ? '松开即可上传' : '上传检测报告'}
                   </p>
                   <p className="font-body" style={{ color: 'var(--text-mid)', fontSize: 14, marginBottom: 7 }}>
@@ -291,14 +280,14 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
                       className="flex items-center justify-between rounded-xl"
                       style={{
                         marginTop: 10, padding: '12px 18px',
-                        background: 'rgba(255,45,85,0.08)', border: '1px solid rgba(255,45,85,0.35)',
-                        color: '#FF7096', fontSize: 13,
+                        background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.25)',
+                        color: '#F87171', fontSize: 13,
                       }}
                     >
                       <span className="font-body">{errorMsg}</span>
                       <button
                         className="font-title text-xs tracking-wider rounded-lg"
-                        style={{ color: '#FF2D55', border: '1px solid rgba(255,45,85,0.4)', padding: '3px 10px', background: 'rgba(255,45,85,0.08)' }}
+                        style={{ color: '#DC2626', border: '1px solid rgba(220,38,38,0.3)', padding: '3px 10px', background: 'rgba(220,38,38,0.06)' }}
                         onClick={e => { e.stopPropagation(); setStatus('idle'); }}
                       >重试</button>
                     </motion.div>
@@ -322,10 +311,10 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
                 <div className="rounded-full flex items-center justify-center font-title font-bold"
                   style={{
                     width: 32, height: 32, fontSize: 12,
-                    background: i === 0 ? 'rgba(0,229,255,0.13)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${i === 0 ? 'rgba(0,229,255,0.5)' : 'rgba(255,255,255,0.07)'}`,
-                    color: i === 0 ? '#00E5FF' : 'var(--text-dim)',
-                    boxShadow: i === 0 ? '0 0 14px rgba(0,229,255,0.25)' : 'none',
+                    background: i === 0 ? 'rgba(13,148,136,0.10)' : 'rgba(0,0,0,0.02)',
+                    border: `1px solid ${i === 0 ? 'rgba(13,148,136,0.4)' : 'rgba(0,0,0,0.08)'}`,
+                    color: i === 0 ? '#0D9488' : 'var(--text-dim)',
+                    boxShadow: i === 0 ? '0 1px 8px rgba(13,148,136,0.15)' : 'none',
                   }}>
                   {i + 1}
                 </div>
@@ -338,7 +327,7 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
                 <div style={{
                   width: 'clamp(32px, 10vw, 70px)', height: 1,
                   margin: '0 8px', marginBottom: 22,
-                  background: 'linear-gradient(to right, rgba(0,229,255,0.25), rgba(0,229,255,0.04))',
+                  background: 'linear-gradient(to right, rgba(13,148,136,0.2), rgba(13,148,136,0.05))',
                 }} />
               )}
             </div>
@@ -353,12 +342,12 @@ export default function UploadPage({ onParsed, onGeneric }: Props) {
             transition={{ delay: 0.6 }}
             className="mt-6 text-center"
           >
-            <div className="h-px mb-4 mx-12" style={{ background: 'linear-gradient(to right, transparent, rgba(0,255,148,0.15), transparent)' }} />
+            <div className="h-px mb-4 mx-12" style={{ background: 'linear-gradient(to right, transparent, rgba(22,163,74,0.15), transparent)' }} />
             <button
               onClick={onGeneric}
               className="font-body text-sm transition-all"
               style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#00FF94'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#16A34A'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-dim)'; }}
             >
               没有脂肪谱报告？→ <span style={{ textDecoration: 'underline' }}>使用通用健康套餐</span>

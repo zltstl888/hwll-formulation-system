@@ -151,7 +151,7 @@ export default function App() {
           />
           {genError && (
             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-sm"
-              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#fca5a5' }}>
+              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', color: '#DC2626' }}>
               {genError}
             </div>
           )}
@@ -168,7 +168,7 @@ export default function App() {
           />
           {genError && (
             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-sm"
-              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#fca5a5' }}>
+              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', color: '#DC2626' }}>
               {genError}
             </div>
           )}
@@ -176,13 +176,8 @@ export default function App() {
       )}
       {step === 'generating' && (
         <motion.div key="generating" {...PAGE_TRANSITION}>
-          <div className="grid-bg min-h-screen relative flex flex-col items-center justify-center overflow-hidden"
-            style={{ padding: '3vh max(24px, 5vw)' }}>
-            {/* Ambient glows */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{ width: 600, height: 280, background: 'radial-gradient(ellipse, rgba(123,47,247,0.08) 0%, transparent 70%)', filter: 'blur(48px)' }} />
-            <div className="absolute bottom-0 right-1/4 pointer-events-none"
-              style={{ width: 400, height: 400, background: 'radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%)', filter: 'blur(56px)' }} />
+          <div className="min-h-screen relative flex flex-col items-center justify-center overflow-hidden"
+            style={{ padding: '3vh max(24px, 5vw)', background: '#FFFFFF' }}>
 
             <div className="relative z-10 flex flex-col items-center" style={{ width: '100%', maxWidth: 480 }}>
               {/* Logo */}
@@ -190,44 +185,44 @@ export default function App() {
                 <div className="relative rounded-full flex items-center justify-center"
                   style={{
                     width: 72, height: 72,
-                    background: 'radial-gradient(circle, rgba(235,28,40,0.07) 0%, rgba(3,7,18,0.85) 70%)',
-                    border: '1px solid rgba(235,28,40,0.25)',
-                    boxShadow: '0 0 24px rgba(235,28,40,0.15)',
+                    background: 'radial-gradient(circle, rgba(235,28,40,0.05) 0%, #F8FAFC 70%)',
+                    border: '1px solid rgba(235,28,40,0.15)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                   }}>
-                  <img src={LOGO_SRC} alt="HWLL" className="flicker" style={{ width: 64, height: 64, objectFit: 'contain' }} />
+                  <img src={LOGO_SRC} alt="HWLL" style={{ width: 64, height: 64, objectFit: 'contain' }} />
                 </div>
               </div>
 
               {/* Title */}
-              <h2 className="font-title text-xl font-bold tracking-widest text-glow-cyan mb-3"
-                style={{ color: '#00E5FF', letterSpacing: '0.15em' }}>
+              <h2 className="font-title text-xl font-bold tracking-widest mb-3"
+                style={{ color: '#0D9488', letterSpacing: '0.15em' }}>
                 配方生成中
               </h2>
 
               {/* Percentage */}
               <p className="font-data text-4xl font-bold mb-6"
-                style={{ color: '#00E5FF', textShadow: '0 0 20px rgba(0,229,255,0.8)' }}>
+                style={{ color: '#0D9488' }}>
                 {Math.round(progress)}%
               </p>
 
               {/* Progress bar */}
               <div className="w-full relative rounded-full overflow-hidden mb-6"
-                style={{ height: 10, background: 'rgba(0,229,255,0.08)' }}>
+                style={{ height: 10, background: 'rgba(13,148,136,0.1)' }}>
                 <div
                   className="absolute top-0 left-0 h-full rounded-full"
                   style={{
                     width: `${progress}%`,
-                    background: 'linear-gradient(to right, #7B2FF7, #00E5FF)',
-                    boxShadow: '0 0 12px rgba(0,229,255,0.6), 0 0 24px rgba(123,47,247,0.3)',
+                    background: 'linear-gradient(to right, #6366F1, #0D9488)',
+                    boxShadow: '0 1px 4px rgba(13,148,136,0.3)',
                   }}
                 />
               </div>
 
               {/* Stage text */}
-              <p className="font-body text-base mb-2" style={{ color: 'var(--text-mid)', letterSpacing: '0.06em' }}>
+              <p className="font-body text-base mb-2" style={{ color: '#64748B', letterSpacing: '0.06em' }}>
                 {stageText}
               </p>
-              <p className="font-data text-xs" style={{ color: 'var(--text-dim)', letterSpacing: '0.18em' }}>
+              <p className="font-data text-xs" style={{ color: '#94A3B8', letterSpacing: '0.18em' }}>
                 EVIDENCE-BASED AI FORMULATION ENGINE
               </p>
             </div>

@@ -11,16 +11,16 @@ interface Props {
 const TABS = ['产品方案', '膳食干预', '运动处方', '生活方式', '随访计划'] as const;
 
 const PRODUCT_PALETTE = [
-  { color: '#00E5FF', glow: 'rgba(0,229,255,0.25)',   bg: 'rgba(0,229,255,0.06)',   border: 'rgba(0,229,255,0.20)'   },
-  { color: '#7B2FF7', glow: 'rgba(123,47,247,0.3)',   bg: 'rgba(123,47,247,0.06)',  border: 'rgba(123,47,247,0.22)'  },
-  { color: '#00FF94', glow: 'rgba(0,255,148,0.25)',   bg: 'rgba(0,255,148,0.05)',   border: 'rgba(0,255,148,0.20)'   },
-  { color: '#FFB800', glow: 'rgba(255,184,0,0.25)',   bg: 'rgba(255,184,0,0.05)',   border: 'rgba(255,184,0,0.20)'   },
-  { color: '#FF0080', glow: 'rgba(255,0,128,0.25)',   bg: 'rgba(255,0,128,0.05)',   border: 'rgba(255,0,128,0.20)'   },
-  { color: '#00CFFF', glow: 'rgba(0,207,255,0.25)',   bg: 'rgba(0,207,255,0.05)',   border: 'rgba(0,207,255,0.20)'   },
+  { color: '#0D9488', glow: 'rgba(13,148,136,0.25)',  bg: 'rgba(13,148,136,0.06)',  border: 'rgba(13,148,136,0.20)'  },
+  { color: '#6366F1', glow: 'rgba(99,102,241,0.25)',  bg: 'rgba(99,102,241,0.06)',  border: 'rgba(99,102,241,0.20)'  },
+  { color: '#16A34A', glow: 'rgba(22,163,74,0.25)',   bg: 'rgba(22,163,74,0.06)',   border: 'rgba(22,163,74,0.20)'   },
+  { color: '#D97706', glow: 'rgba(217,119,6,0.25)',   bg: 'rgba(217,119,6,0.06)',   border: 'rgba(217,119,6,0.20)'   },
+  { color: '#EC4899', glow: 'rgba(236,72,153,0.25)',  bg: 'rgba(236,72,153,0.06)',  border: 'rgba(236,72,153,0.20)'  },
+  { color: '#0EA5E9', glow: 'rgba(14,165,233,0.25)',  bg: 'rgba(14,165,233,0.06)',  border: 'rgba(14,165,233,0.20)'  },
 ];
 
 function productPalette(idx: number, conditional: boolean) {
-  if (conditional) return { color: '#FFB800', glow: 'rgba(255,184,0,0.25)', bg: 'rgba(255,184,0,0.05)', border: 'rgba(255,184,0,0.20)' };
+  if (conditional) return { color: '#D97706', glow: 'rgba(217,119,6,0.25)', bg: 'rgba(217,119,6,0.05)', border: 'rgba(217,119,6,0.20)' };
   return PRODUCT_PALETTE[idx % PRODUCT_PALETTE.length];
 }
 
@@ -61,7 +61,7 @@ export default function ReportPage({ result, onRestart }: Props) {
       style={{ padding: '2rem max(24px, 5vw)' }}>
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] pointer-events-none"
-        style={{ background: `radial-gradient(ellipse, rgba(0,229,255,0.05) 0%, transparent 70%)`, filter: 'blur(50px)' }} />
+        style={{ background: `radial-gradient(ellipse, rgba(13,148,136,0.06) 0%, transparent 70%)`, filter: 'blur(50px)' }} />
 
       <div className="relative z-10 max-w-6xl mx-auto">
 
@@ -70,9 +70,9 @@ export default function ReportPage({ result, onRestart }: Props) {
           <button
             onClick={onRestart}
             className="font-body text-sm tracking-wider flex items-center gap-2 px-4 py-2 rounded-lg transition-all"
-            style={{ color: 'var(--text-mid)', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,255,0.3)'; (e.currentTarget as HTMLElement).style.color = '#00E5FF'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-mid)'; }}
+            style={{ color: 'var(--text-mid)', border: '1px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(13,148,136,0.4)'; (e.currentTarget as HTMLElement).style.color = '#0D9488'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-mid)'; }}
           >
             ← 重新开始
           </button>
@@ -83,13 +83,13 @@ export default function ReportPage({ result, onRestart }: Props) {
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center font-title text-xs"
                     style={{
-                      background: 'rgba(0,255,148,0.12)',
-                      border: '1px solid rgba(0,255,148,0.35)',
-                      color: '#00FF94',
+                      background: 'rgba(22,163,74,0.10)',
+                      border: '1px solid rgba(22,163,74,0.30)',
+                      color: '#16A34A',
                     }}>✓</div>
-                  <span className="font-body text-xs tracking-wider hidden md:inline" style={{ color: '#00FF94' }}>{step}</span>
+                  <span className="font-body text-xs tracking-wider hidden md:inline" style={{ color: '#16A34A' }}>{step}</span>
                 </div>
-                {i < 2 && <div className="w-10 h-px mx-3" style={{ background: 'rgba(0,255,148,0.2)' }} />}
+                {i < 2 && <div className="w-10 h-px mx-3" style={{ background: 'rgba(22,163,74,0.2)' }} />}
               </div>
             ))}
           </div>
@@ -97,9 +97,9 @@ export default function ReportPage({ result, onRestart }: Props) {
           <button
             onClick={() => window.print()}
             className="font-title text-xs tracking-widest flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all no-print"
-            style={{ color: '#00E5FF', border: '1px solid rgba(0,229,255,0.3)', background: 'rgba(0,229,255,0.06)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(0,229,255,0.2)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,255,0.55)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,255,0.3)'; }}
+            style={{ color: '#0D9488', border: '1px solid rgba(13,148,136,0.3)', background: 'rgba(13,148,136,0.06)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(13,148,136,0.15)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(13,148,136,0.55)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(13,148,136,0.3)'; }}
           >
             ⬇ 导出报告
           </button>
@@ -110,17 +110,17 @@ export default function ReportPage({ result, onRestart }: Props) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative bracket rounded-2xl mb-8"
+          className="relative rounded-2xl mb-8"
           style={{
-            background: 'linear-gradient(135deg, rgba(9,18,32,0.98), rgba(9,18,32,0.85))',
-            border: '1px solid rgba(0,229,255,0.12)',
-            boxShadow: '0 4px 60px rgba(0,0,0,0.5)',
+            background: '#FFFFFF',
+            border: '1px solid rgba(0,0,0,0.06)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
           }}
         >
           {/* Top label — inside card flow to avoid overlap on mobile */}
           <div className="flex justify-center pt-4 sm:pt-5">
             <div className="px-6 py-1.5 rounded-full font-data text-xs tracking-widest"
-              style={{ background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.15)', color: 'rgba(0,229,255,0.7)' }}>
+              style={{ background: 'rgba(13,148,136,0.06)', border: '1px solid rgba(13,148,136,0.15)', color: 'rgba(13,148,136,0.8)' }}>
               FORMULATION REPORT · {new Date(result.generated_at).toLocaleDateString('zh-CN')}
             </div>
           </div>
@@ -157,8 +157,8 @@ export default function ReportPage({ result, onRestart }: Props) {
               {/* Risk summary box */}
               <div className="relative rounded-xl p-5 mb-6"
                 style={{
-                  background: 'rgba(3,7,18,0.7)',
-                  border: '1px solid rgba(0,229,255,0.08)',
+                  background: '#F8FAFC',
+                  border: '1px solid rgba(0,0,0,0.06)',
                 }}>
                 <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'var(--text-dim)', letterSpacing: '0.18em' }}>
                   CLINICAL SUMMARY
@@ -197,19 +197,20 @@ export default function ReportPage({ result, onRestart }: Props) {
             { icon: '🥗', label: '膳食干预', sub: formulation.diet_intervention.pattern, tab: '膳食干预' as const },
             { icon: '🏃', label: '运动处方', sub: formulation.exercise_prescription.frequency, tab: '运动处方' as const },
             { icon: '🌙', label: '生活方式', sub: `${formulation.lifestyle_intervention.key_points.length} 项建议`, tab: '生活方式' as const },
-            { icon: '📋', label: '随访计划', sub: `${formulation.followup_plan.review_weeks} 周复查`, tab: '随访计划' as const },
+            { icon: '📋', label: '随访计划', sub: `${formulation.followup_plan.review_days || formulation.followup_plan.review_weeks * 7} 天复查`, tab: '随访计划' as const },
           ].map(dim => (
             <button
               key={dim.label}
               onClick={() => setActiveTab(dim.tab)}
               className="rounded-xl p-2.5 sm:p-3 text-center transition-all duration-300"
               style={{
-                background: activeTab === dim.tab ? 'rgba(0,229,255,0.08)' : 'rgba(9,18,32,0.7)',
-                border: `1px solid ${activeTab === dim.tab ? 'rgba(0,229,255,0.25)' : 'rgba(0,229,255,0.06)'}`,
+                background: activeTab === dim.tab ? 'rgba(13,148,136,0.08)' : '#FFFFFF',
+                border: `1px solid ${activeTab === dim.tab ? 'rgba(13,148,136,0.25)' : 'rgba(0,0,0,0.06)'}`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
               }}
             >
               <div style={{ fontSize: 20, marginBottom: 4 }}>{dim.icon}</div>
-              <p className="font-body text-xs sm:text-sm font-semibold" style={{ color: activeTab === dim.tab ? '#00E5FF' : 'var(--text-hi)', lineHeight: 1.3 }}>
+              <p className="font-body text-xs sm:text-sm font-semibold" style={{ color: activeTab === dim.tab ? '#0D9488' : 'var(--text-hi)', lineHeight: 1.3 }}>
                 {dim.label}
               </p>
               <p className="font-data hidden sm:block mt-1" style={{ fontSize: 10, color: 'var(--text-dim)', lineHeight: 1.2 }}>
@@ -227,7 +228,7 @@ export default function ReportPage({ result, onRestart }: Props) {
         >
 
           <div className="flex gap-1 mb-6 p-1.5 rounded-2xl no-print overflow-x-auto"
-            style={{ background: 'rgba(6,13,26,0.9)', border: '1px solid rgba(0,229,255,0.08)', WebkitOverflowScrolling: 'touch' }}>
+            style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', WebkitOverflowScrolling: 'touch' }}>
             {TABS.map(tab => (
               <button
                 key={tab}
@@ -235,13 +236,13 @@ export default function ReportPage({ result, onRestart }: Props) {
                 className="flex-none sm:flex-1 py-3 px-4 sm:px-2 rounded-xl font-title text-sm font-semibold tracking-wider transition-all duration-300 whitespace-nowrap"
                 style={{
                   background: activeTab === tab
-                    ? 'linear-gradient(135deg, rgba(0,229,255,0.14), rgba(123,47,247,0.16))'
+                    ? 'linear-gradient(135deg, rgba(13,148,136,0.10), rgba(99,102,241,0.08))'
                     : 'transparent',
-                  border: `1px solid ${activeTab === tab ? 'rgba(0,229,255,0.35)' : 'transparent'}`,
-                  color: activeTab === tab ? '#00E5FF' : 'var(--text-dim)',
-                  boxShadow: activeTab === tab ? '0 0 20px rgba(0,229,255,0.12)' : 'none',
+                  border: `1px solid ${activeTab === tab ? 'rgba(13,148,136,0.25)' : 'transparent'}`,
+                  color: activeTab === tab ? '#0D9488' : 'var(--text-dim)',
+                  boxShadow: activeTab === tab ? '0 1px 3px rgba(13,148,136,0.10)' : 'none',
                   letterSpacing: '0.12em',
-                  borderBottom: activeTab === tab ? '2px solid rgba(0,229,255,0.6)' : '2px solid transparent',
+                  borderBottom: activeTab === tab ? '2px solid rgba(13,148,136,0.5)' : '2px solid transparent',
                 }}
               >
                 {tab}
@@ -263,15 +264,15 @@ export default function ReportPage({ result, onRestart }: Props) {
                 const durationWeeks = allProducts.length > 0 ? parseDurationWeeks(allProducts[0].duration) : 12;
 
                 return (
-                  <div className="relative bracket rounded-2xl overflow-hidden"
-                    style={{ background: 'rgba(9,18,32,0.95)', border: '1px solid rgba(0,229,255,0.15)' }}>
+                  <div className="relative rounded-2xl overflow-hidden"
+                    style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
 
                     {/* ── Prescription Header ── */}
                     <div className="px-6 py-4 sm:px-8 sm:py-5"
-                      style={{ background: 'linear-gradient(135deg, rgba(0,229,255,0.08), rgba(123,47,247,0.06))', borderBottom: '1px solid rgba(0,229,255,0.10)' }}>
+                      style={{ background: 'linear-gradient(135deg, rgba(13,148,136,0.06), rgba(99,102,241,0.04))', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="font-title text-lg sm:text-xl font-bold tracking-wide" style={{ color: '#00E5FF' }}>
+                          <h3 className="font-title text-lg sm:text-xl font-bold tracking-wide" style={{ color: '#0D9488' }}>
                             患者个性化套餐
                           </h3>
                           <p className="font-data text-xs mt-1 tracking-wider" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
@@ -280,7 +281,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                         </div>
                         <div className="text-right">
                           <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>PRODUCTS</p>
-                          <p className="font-title text-2xl font-black" style={{ color: '#00E5FF' }}>{allProducts.length}</p>
+                          <p className="font-title text-2xl font-black" style={{ color: '#0D9488' }}>{allProducts.length}</p>
                         </div>
                       </div>
                     </div>
@@ -288,7 +289,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                     {/* ── Product List (Prescription Style) ── */}
                     <div className="px-6 py-5 sm:px-8 sm:py-6">
                       <div className="rounded-xl overflow-hidden mb-6"
-                        style={{ border: '1px solid rgba(0,229,255,0.08)' }}>
+                        style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                         {allProducts.map((p, i) => {
                           const pal = productPalette(i, p.category === 'conditional');
                           const boxes = calcBoxes(p);
@@ -296,15 +297,15 @@ export default function ReportPage({ result, onRestart }: Props) {
                             <div key={p.product_id}
                               className="flex items-center justify-between px-5 py-3.5"
                               style={{
-                                background: i % 2 === 0 ? 'rgba(3,7,18,0.5)' : 'rgba(3,7,18,0.3)',
-                                borderBottom: i < allProducts.length - 1 ? '1px solid rgba(0,229,255,0.05)' : 'none',
+                                background: i % 2 === 0 ? '#F8FAFC' : '#FFFFFF',
+                                borderBottom: i < allProducts.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none',
                               }}>
                               <div className="flex items-center gap-3 min-w-0">
                                 <span className="font-data text-xs w-5 text-center flex-shrink-0" style={{ color: pal.color }}>{i + 1}</span>
                                 <span className="font-body text-sm font-semibold truncate" style={{ color: 'var(--text-hi)' }}>{p.product_name}</span>
                                 {p.category === 'conditional' && (
                                   <span className="font-data px-1.5 py-0.5 rounded flex-shrink-0"
-                                    style={{ background: 'rgba(255,184,0,0.12)', color: '#FFB800', fontSize: 10 }}>条件</span>
+                                    style={{ background: 'rgba(217,119,6,0.10)', color: '#D97706', fontSize: 10 }}>条件</span>
                                 )}
                               </div>
                               <span className="font-data text-sm font-bold flex-shrink-0 ml-4" style={{ color: pal.color }}>
@@ -317,9 +318,9 @@ export default function ReportPage({ result, onRestart }: Props) {
 
                       {/* ── Usage Instructions ── */}
                       <div className="flex items-center gap-3 mb-5">
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(0,229,255,0.2), transparent)' }} />
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(13,148,136,0.2), transparent)' }} />
                         <span className="font-title text-xs tracking-[0.2em]" style={{ color: 'var(--text-dim)' }}>用法用量</span>
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(0,229,255,0.2), transparent)' }} />
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(13,148,136,0.2), transparent)' }} />
                       </div>
 
                       <div className="space-y-4">
@@ -327,13 +328,13 @@ export default function ReportPage({ result, onRestart }: Props) {
                           const pal = productPalette(i, p.category === 'conditional');
                           return (
                             <div key={p.product_id} className="rounded-xl p-4 sm:p-5"
-                              style={{ background: `linear-gradient(135deg, ${pal.bg}, rgba(3,7,18,0.5))`, border: `1px solid ${pal.border}` }}>
+                              style={{ background: `linear-gradient(135deg, ${pal.bg}, #F8FAFC)`, border: `1px solid ${pal.border}` }}>
                               <div className="flex items-center gap-2 mb-3">
                                 <span className="font-data text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ background: `${pal.color}20`, color: pal.color }}>{i + 1}</span>
+                                  style={{ background: `${pal.color}15`, color: pal.color }}>{i + 1}</span>
                                 <span className="font-body text-sm font-bold" style={{ color: 'var(--text-hi)' }}>{p.product_name}</span>
                               </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                                 <div>
                                   <p className="font-data text-xs mb-1" style={{ color: 'var(--text-dim)', letterSpacing: '0.1em' }}>服用方法</p>
                                   <p className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{p.dose}</p>
@@ -347,9 +348,6 @@ export default function ReportPage({ result, onRestart }: Props) {
                                   <p className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{p.duration}</p>
                                 </div>
                               </div>
-                              <p className="font-body text-xs leading-relaxed" style={{ color: 'var(--text-dim)', lineHeight: 1.6 }}>
-                                {p.indication}
-                              </p>
                             </div>
                           );
                         })}
@@ -357,13 +355,13 @@ export default function ReportPage({ result, onRestart }: Props) {
 
                       {/* ── Warnings ── */}
                       {allProducts.some(p => p.warnings?.length > 0) && (
-                        <div className="mt-5 rounded-xl p-4" style={{ background: 'rgba(255,184,0,0.04)', border: '1px solid rgba(255,184,0,0.15)' }}>
-                          <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'rgba(255,184,0,0.7)', letterSpacing: '0.15em' }}>
+                        <div className="mt-5 rounded-xl p-4" style={{ background: 'rgba(217,119,6,0.04)', border: '1px solid rgba(217,119,6,0.15)' }}>
+                          <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'rgba(217,119,6,0.7)', letterSpacing: '0.15em' }}>
                             ⚠ 用药注意事项
                           </p>
                           {allProducts.flatMap(p => (p.warnings || []).map((w: string, wi: number) => (
                             <p key={`${p.product_id}-${wi}`} className="font-body text-sm mb-1.5 leading-relaxed"
-                              style={{ color: '#FFB800', lineHeight: 1.7 }}>{w}</p>
+                              style={{ color: '#D97706', lineHeight: 1.7 }}>{w}</p>
                           )))}
                         </div>
                       )}
@@ -377,16 +375,16 @@ export default function ReportPage({ result, onRestart }: Props) {
                 <InterventionPanel
                   title={formulation.diet_intervention.pattern}
                   sections={[
-                    { label: '关键原则', items: formulation.diet_intervention.key_points, color: '#00E5FF' },
-                    { label: '建议增加', items: formulation.diet_intervention.foods_to_increase, color: '#00FF94' },
-                    { label: '建议减少', items: formulation.diet_intervention.foods_to_reduce, color: '#FF2D55' },
+                    { label: '关键原则', items: formulation.diet_intervention.key_points, color: '#0D9488' },
+                    { label: '建议增加', items: formulation.diet_intervention.foods_to_increase, color: '#16A34A' },
+                    { label: '建议减少', items: formulation.diet_intervention.foods_to_reduce, color: '#DC2626' },
                   ].filter(s => s.items.length > 0)}
                 />
               )}
 
               {activeTab === '运动处方' && (
-                <div className="relative bracket rounded-2xl p-5 sm:p-8"
-                  style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
+                <div className="relative rounded-2xl p-5 sm:p-8"
+                  style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
                   <h3 className="font-title text-lg font-bold mb-8 tracking-wide" style={{ color: 'var(--text-hi)' }}>
                     {formulation.exercise_prescription.type}
                   </h3>
@@ -397,7 +395,7 @@ export default function ReportPage({ result, onRestart }: Props) {
                       { label: 'INTENSITY', value: formulation.exercise_prescription.intensity  },
                     ].map(item => (
                       <div key={item.label} className="rounded-xl p-5 text-center"
-                        style={{ background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.10)' }}>
+                        style={{ background: 'rgba(13,148,136,0.04)', border: '1px solid rgba(13,148,136,0.10)' }}>
                         <p className="font-data text-xs tracking-widest mb-3" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
                           {item.label}
                         </p>
@@ -408,37 +406,37 @@ export default function ReportPage({ result, onRestart }: Props) {
                     ))}
                   </div>
                   {formulation.exercise_prescription.precautions.length > 0 && (
-                    <ListBlock label="注意事项" items={formulation.exercise_prescription.precautions} color="#FFB800" />
+                    <ListBlock label="注意事项" items={formulation.exercise_prescription.precautions} color="#D97706" />
                   )}
                 </div>
               )}
 
               {activeTab === '生活方式' && (
-                <div className="relative bracket rounded-2xl p-5 sm:p-8"
-                  style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
-                  <ListBlock label="干预要点" items={formulation.lifestyle_intervention.key_points} color="#7B2FF7" />
+                <div className="relative rounded-2xl p-5 sm:p-8"
+                  style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
+                  <ListBlock label="干预要点" items={formulation.lifestyle_intervention.key_points} color="#6366F1" />
                 </div>
               )}
 
               {activeTab === '随访计划' && (
-                <div className="relative bracket rounded-2xl overflow-hidden"
-                  style={{ background: 'rgba(9,18,32,0.95)', border: '1px solid rgba(123,47,247,0.15)' }}>
+                <div className="relative rounded-2xl overflow-hidden"
+                  style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
 
                   {/* Header */}
                   <div className="px-6 py-4 sm:px-8 sm:py-5"
-                    style={{ background: 'linear-gradient(135deg, rgba(123,47,247,0.08), rgba(0,229,255,0.04))', borderBottom: '1px solid rgba(123,47,247,0.10)' }}>
+                    style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.06), rgba(13,148,136,0.04))', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-title text-lg sm:text-xl font-bold tracking-wide" style={{ color: '#7B2FF7' }}>
+                        <h3 className="font-title text-lg sm:text-xl font-bold tracking-wide" style={{ color: '#6366F1' }}>
                           随访管理计划
                         </h3>
                         <p className="font-data text-xs mt-1 tracking-wider" style={{ color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
-                          FOLLOW-UP PLAN · 首次复查 {formulation.followup_plan.review_weeks} 周
+                          FOLLOW-UP PLAN · 首次复查 {formulation.followup_plan.review_days || formulation.followup_plan.review_weeks * 7} 天
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>WEEKS</p>
-                        <p className="font-title text-2xl font-black" style={{ color: '#7B2FF7' }}>{formulation.followup_plan.review_weeks}</p>
+                        <p className="font-data text-xs tracking-wider" style={{ color: 'var(--text-dim)' }}>DAYS</p>
+                        <p className="font-title text-2xl font-black" style={{ color: '#6366F1' }}>{formulation.followup_plan.review_days || formulation.followup_plan.review_weeks * 7}</p>
                       </div>
                     </div>
                   </div>
@@ -446,12 +444,12 @@ export default function ReportPage({ result, onRestart }: Props) {
                   <div className="px-6 py-5 sm:px-8 sm:py-6 space-y-5">
                     {/* Review schedule */}
                     <div className="flex items-center gap-5 rounded-xl p-5"
-                      style={{ background: 'rgba(3,7,18,0.5)', border: '1px solid rgba(123,47,247,0.12)' }}>
+                      style={{ background: '#F8FAFC', border: '1px solid rgba(99,102,241,0.12)' }}>
                       <div className="text-center flex-shrink-0" style={{ minWidth: 60 }}>
-                        <p className="font-title text-3xl font-black" style={{ color: '#7B2FF7' }}>{formulation.followup_plan.review_weeks}</p>
-                        <p className="font-data text-xs tracking-widest" style={{ color: 'rgba(123,47,247,0.6)' }}>WEEKS</p>
+                        <p className="font-title text-3xl font-black" style={{ color: '#6366F1' }}>{formulation.followup_plan.review_days || formulation.followup_plan.review_weeks * 7}</p>
+                        <p className="font-data text-xs tracking-widest" style={{ color: 'rgba(99,102,241,0.6)' }}>DAYS</p>
                       </div>
-                      <div className="h-12 w-px flex-shrink-0" style={{ background: 'rgba(123,47,247,0.2)' }} />
+                      <div className="h-12 w-px flex-shrink-0" style={{ background: 'rgba(99,102,241,0.2)' }} />
                       <div>
                         <p className="font-body text-sm font-semibold mb-1" style={{ color: 'var(--text-hi)' }}>
                           首次复查日期：{formulation.followup_plan.review_date}
@@ -465,18 +463,18 @@ export default function ReportPage({ result, onRestart }: Props) {
                     {/* Check items */}
                     <div>
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(123,47,247,0.2), transparent)' }} />
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, rgba(99,102,241,0.2), transparent)' }} />
                         <span className="font-title text-xs tracking-[0.2em]" style={{ color: 'var(--text-dim)' }}>复查项目</span>
-                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(123,47,247,0.2), transparent)' }} />
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, rgba(99,102,241,0.2), transparent)' }} />
                       </div>
-                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(123,47,247,0.08)' }}>
+                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(99,102,241,0.08)' }}>
                         {formulation.followup_plan.items_to_check.map((item, i) => (
                           <div key={i} className="flex items-center gap-3 px-5 py-3"
                             style={{
-                              background: i % 2 === 0 ? 'rgba(3,7,18,0.5)' : 'rgba(3,7,18,0.3)',
-                              borderBottom: i < formulation.followup_plan.items_to_check.length - 1 ? '1px solid rgba(123,47,247,0.05)' : 'none',
+                              background: i % 2 === 0 ? '#F8FAFC' : '#FFFFFF',
+                              borderBottom: i < formulation.followup_plan.items_to_check.length - 1 ? '1px solid rgba(99,102,241,0.05)' : 'none',
                             }}>
-                            <span className="font-data text-xs w-5 text-center flex-shrink-0" style={{ color: '#7B2FF7' }}>{i + 1}</span>
+                            <span className="font-data text-xs w-5 text-center flex-shrink-0" style={{ color: '#6366F1' }}>{i + 1}</span>
                             <span className="font-body text-sm" style={{ color: 'var(--text-mid)' }}>{item}</span>
                           </div>
                         ))}
@@ -489,71 +487,14 @@ export default function ReportPage({ result, onRestart }: Props) {
           </AnimatePresence>
         </motion.div>
 
-        {/* ── Expert Video Section (bottom) ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="relative bracket rounded-2xl mt-8 no-print"
-          style={{
-            background: 'linear-gradient(135deg, rgba(9,18,32,0.95), rgba(9,18,32,0.85))',
-            border: '1px solid rgba(123,47,247,0.15)',
-            padding: '24px',
-          }}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(123,47,247,0.15)', border: '1px solid rgba(123,47,247,0.3)' }}>
-              <span style={{ fontSize: 16 }}>🎬</span>
-            </div>
-            <div>
-              <h3 className="font-title text-sm font-semibold tracking-wider" style={{ color: 'var(--text-hi)' }}>专家视频解读</h3>
-              <p className="font-data text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>EXPERT VIDEO · 了解脂肪酸干预原理</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { title: '平衡脂肪谱·改造免疫代谢失衡体质', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/20250517.mp4' },
-              { title: '利用细胞再生·调整脂代谢失衡体质', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/050429.mp4' },
-              { title: '基于大数据·精准营养干预', speaker: '赵博士', url: 'http://cdn.gee4.cn/videos/zf.mp4' },
-              { title: '脂均衡营养·控制三高', speaker: '专家讲解', url: 'http://cdn.gee4.cn/videos/zjhkzsg.mp4' },
-            ].map((video, i) => (
-              <a
-                key={i}
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl p-4 transition-all duration-300 block"
-                style={{
-                  background: 'rgba(3,7,18,0.6)',
-                  border: '1px solid rgba(123,47,247,0.12)',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.4)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(123,47,247,0.15)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(123,47,247,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
-              >
-                <div className="flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto"
-                  style={{ background: 'rgba(123,47,247,0.12)', border: '1px solid rgba(123,47,247,0.25)' }}>
-                  <span style={{ fontSize: 18 }}>▶</span>
-                </div>
-                <p className="font-body text-xs font-semibold text-center leading-snug mb-1" style={{ color: 'var(--text-hi)', lineHeight: 1.4 }}>
-                  {video.title}
-                </p>
-                <p className="font-data text-xs text-center" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
-                  {video.speaker}
-                </p>
-              </a>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Medical Disclaimer + Footer */}
         <div className="mt-14 no-print">
-          <div className="h-px mb-6" style={{ background: 'linear-gradient(to right, transparent, rgba(0,229,255,0.15), transparent)' }} />
+          <div className="h-px mb-6" style={{ background: 'linear-gradient(to right, transparent, rgba(13,148,136,0.15), transparent)' }} />
 
           {/* Disclaimer per algorithm guide 6.2 */}
           <div className="rounded-xl p-5 mb-6"
-            style={{ background: 'rgba(255,184,0,0.04)', border: '1px solid rgba(255,184,0,0.15)' }}>
-            <p className="font-data text-xs tracking-widest mb-2" style={{ color: 'rgba(255,184,0,0.6)', letterSpacing: '0.15em' }}>
+            style={{ background: 'rgba(217,119,6,0.04)', border: '1px solid rgba(217,119,6,0.15)' }}>
+            <p className="font-data text-xs tracking-widest mb-2" style={{ color: 'rgba(217,119,6,0.7)', letterSpacing: '0.15em' }}>
               MEDICAL DISCLAIMER
             </p>
             <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-dim)', lineHeight: 1.8 }}>
@@ -577,8 +518,8 @@ function InterventionPanel({ title, sections }: {
   sections: { label: string; items: string[]; color: string }[];
 }) {
   return (
-    <div className="relative bracket rounded-2xl p-5 sm:p-8"
-      style={{ background: 'rgba(9,18,32,0.9)', border: '1px solid rgba(0,229,255,0.10)' }}>
+    <div className="relative rounded-2xl p-5 sm:p-8"
+      style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
       <h3 className="font-title text-lg font-bold tracking-wide mb-6" style={{ color: 'var(--text-hi)' }}>{title}</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {sections.map(sec => <ListBlock key={sec.label} label={sec.label} items={sec.items} color={sec.color} />)}
@@ -589,9 +530,9 @@ function InterventionPanel({ title, sections }: {
 
 function ListBlock({ label, items, color }: { label: string; items: string[]; color: string }) {
   return (
-    <div className="rounded-xl p-5" style={{ background: 'rgba(3,7,18,0.6)', border: `1px solid ${color}18` }}>
+    <div className="rounded-xl p-5" style={{ background: '#F8FAFC', border: `1px solid ${color}15` }}>
       <div className="flex items-center gap-2 mb-5">
-        <div className="w-1 h-5 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}60` }} />
+        <div className="w-1 h-5 rounded-full" style={{ background: color }} />
         <span className="font-title text-xs font-semibold tracking-widest" style={{ color, letterSpacing: '0.18em' }}>{label}</span>
       </div>
       <ul className="space-y-3">

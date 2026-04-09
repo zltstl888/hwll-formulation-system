@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { RiskLevel } from '../types';
 
 const RISK_CFG: Record<RiskLevel, { label: string; color: string; bg: string; border: string; glowSoft: string }> = {
-  critical: { label: '严重风险', color: '#FF2D55', bg: 'rgba(255,45,85,0.06)',  border: 'rgba(255,45,85,0.35)', glowSoft: 'rgba(255,45,85,0.15)' },
-  moderate: { label: '中度风险', color: '#FFB800', bg: 'rgba(255,184,0,0.06)',  border: 'rgba(255,184,0,0.35)', glowSoft: 'rgba(255,184,0,0.15)' },
-  mild:     { label: '轻度风险', color: '#00E5FF', bg: 'rgba(0,229,255,0.06)',  border: 'rgba(0,229,255,0.35)', glowSoft: 'rgba(0,229,255,0.15)' },
-  normal:   { label: '指标正常', color: '#00FF94', bg: 'rgba(0,255,148,0.06)', border: 'rgba(0,255,148,0.35)', glowSoft: 'rgba(0,255,148,0.15)' },
+  critical: { label: '严重风险', color: '#DC2626', bg: 'rgba(220,38,38,0.06)', border: 'rgba(220,38,38,0.25)', glowSoft: 'rgba(220,38,38,0.1)' },
+  moderate: { label: '中度风险', color: '#D97706', bg: 'rgba(217,119,6,0.06)', border: 'rgba(217,119,6,0.25)', glowSoft: 'rgba(217,119,6,0.1)' },
+  mild:     { label: '轻度风险', color: '#0D9488', bg: 'rgba(13,148,136,0.06)', border: 'rgba(13,148,136,0.25)', glowSoft: 'rgba(13,148,136,0.1)' },
+  normal:   { label: '指标正常', color: '#16A34A', bg: 'rgba(22,163,74,0.06)', border: 'rgba(22,163,74,0.25)', glowSoft: 'rgba(22,163,74,0.1)' },
 };
 
 interface IndicatorDef {
@@ -25,21 +25,18 @@ interface IndicatorDef {
 function getValueColor(ind: IndicatorDef): string {
   const v = ind.value ?? 0;
   if (ind.inverted) {
-    // AA:EPA — 越低越好
-    if (v <= 3)  return '#00FF94';
-    if (v <= 10) return '#FFB800';
-    return '#FF2D55';
+    if (v <= 3) return '#16A34A';
+    if (v <= 10) return '#D97706';
+    return '#DC2626';
   }
   if (ind.key === 'omega3') {
-    // Omega-3 index — 越高越好
-    if (v >= 10) return '#00FF94';
-    if (v >= 7)  return '#FFB800';
-    return '#FF2D55';
+    if (v >= 10) return '#16A34A';
+    if (v >= 7) return '#D97706';
+    return '#DC2626';
   }
-  // EPA — 越高越好
-  if (v >= 3)   return '#00FF94';
-  if (v >= 1.5) return '#FFB800';
-  return '#FF2D55';
+  if (v >= 3) return '#16A34A';
+  if (v >= 1.5) return '#D97706';
+  return '#DC2626';
 }
 
 function useAnimatedValue(target: number, delay: number, duration = 2500): number {
@@ -81,10 +78,10 @@ export default function RiskGauge({ level, aaEpaRatio, epaPct, omega3Index }: Pr
       maxScale: 40, refValue: 3, refLabel: '正常 ≤3', unit: '',
       inverted: true, decimals: 1, delay: 300,
       zones: [
-        { end: 3,  color: 'rgba(0,255,148,0.10)' },
-        { end: 10, color: 'rgba(255,184,0,0.10)' },
-        { end: 30, color: 'rgba(255,140,0,0.10)' },
-        { end: 40, color: 'rgba(255,45,85,0.10)' },
+        { end: 3,  color: 'rgba(22,163,74,0.10)' },
+        { end: 10, color: 'rgba(217,119,6,0.10)' },
+        { end: 30, color: 'rgba(234,88,12,0.10)' },
+        { end: 40, color: 'rgba(220,38,38,0.10)' },
       ],
     },
     {
@@ -92,10 +89,10 @@ export default function RiskGauge({ level, aaEpaRatio, epaPct, omega3Index }: Pr
       maxScale: 15, refValue: 8, refLabel: '目标 ≥8%', unit: '%',
       inverted: false, decimals: 2, delay: 800,
       zones: [
-        { end: 2,  color: 'rgba(255,45,85,0.10)' },
-        { end: 4,  color: 'rgba(255,140,0,0.10)' },
-        { end: 8,  color: 'rgba(255,184,0,0.10)' },
-        { end: 15, color: 'rgba(0,255,148,0.10)' },
+        { end: 2,  color: 'rgba(220,38,38,0.10)' },
+        { end: 4,  color: 'rgba(234,88,12,0.10)' },
+        { end: 8,  color: 'rgba(217,119,6,0.10)' },
+        { end: 15, color: 'rgba(22,163,74,0.10)' },
       ],
     },
     {
@@ -103,10 +100,10 @@ export default function RiskGauge({ level, aaEpaRatio, epaPct, omega3Index }: Pr
       maxScale: 5, refValue: 3, refLabel: '目标 ≥3%', unit: '%',
       inverted: false, decimals: 2, delay: 1300,
       zones: [
-        { end: 0.5, color: 'rgba(255,45,85,0.10)' },
-        { end: 1.5, color: 'rgba(255,140,0,0.10)' },
-        { end: 3,   color: 'rgba(255,184,0,0.10)' },
-        { end: 5,   color: 'rgba(0,255,148,0.10)' },
+        { end: 0.5, color: 'rgba(220,38,38,0.10)' },
+        { end: 1.5, color: 'rgba(234,88,12,0.10)' },
+        { end: 3,   color: 'rgba(217,119,6,0.10)' },
+        { end: 5,   color: 'rgba(22,163,74,0.10)' },
       ],
     },
   ];
@@ -121,7 +118,7 @@ export default function RiskGauge({ level, aaEpaRatio, epaPct, omega3Index }: Pr
             background: cfg.bg,
             border: `1px solid ${cfg.border}`,
             color: cfg.color,
-            boxShadow: `0 0 24px ${cfg.glowSoft}, 0 0 60px ${cfg.glowSoft}`,
+            boxShadow: `0 2px 8px ${cfg.glowSoft}`,
             letterSpacing: '0.22em',
           }}
         >
@@ -172,7 +169,7 @@ function IndicatorBar({ ind }: { ind: IndicatorDef }) {
       <div className="mb-2.5">
         <span
           className="font-data text-3xl font-bold"
-          style={{ color: barColor, textShadow: `0 0 16px ${barColor}60` }}
+          style={{ color: barColor }}
         >
           {ind.value != null ? animValue.toFixed(ind.decimals) : '—'}
         </span>
@@ -192,7 +189,7 @@ function IndicatorBar({ ind }: { ind: IndicatorDef }) {
           style={{
             width: `${fillPct}%`,
             background: barColor,
-            boxShadow: `0 0 10px ${barColor}70, 0 0 20px ${barColor}30`,
+            boxShadow: `0 0 4px ${barColor}40`,
           }}
         />
 
