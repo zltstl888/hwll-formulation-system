@@ -90,7 +90,19 @@ input, textarea, select { font-size: max(16px, 1em); }
 @media print {
   .no-print { display: none !important; }
   .hidden.print\:block { display: block !important; }
+
+  /* 强制打印背景色、渐变、进度条颜色 */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   body { background: white !important; color: #111 !important; }
-  /* 打印时避免分页切断卡片 */
+
+  /* 避免分页切断卡片 */
   .rounded-2xl, .rounded-xl { break-inside: avoid; }
+
+  /* 保持页面边距紧凑 */
+  @page { margin: 12mm 10mm; }
 }
