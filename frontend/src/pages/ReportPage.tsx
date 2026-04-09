@@ -496,7 +496,7 @@ function InterventionPanel({ title, sections }: {
     <div className="relative rounded-2xl p-5 sm:p-8"
       style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)' }}>
       <h3 className="font-title text-lg font-bold tracking-wide mb-6" style={{ color: 'var(--text-hi)' }}>{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid gap-5" style={{ gridTemplateColumns: `repeat(${Math.min(sections.length, 3)}, 1fr)` }}>
         {sections.map(sec => <ListBlock key={sec.label} label={sec.label} items={sec.items} color={sec.color} />)}
       </div>
     </div>
